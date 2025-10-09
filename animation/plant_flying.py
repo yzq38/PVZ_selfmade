@@ -1,5 +1,6 @@
 """
 植物飞行动画 - 处理植物选择界面的飞行动画效果
+重构版本 - 使用植物注册系统获取图片键名
 """
 import math
 import pygame
@@ -30,6 +31,46 @@ class PlantFlyingAnimation:
 
         # 缓动函数
         self.effects = AnimationEffects()
+
+        # 初始化植物注册系统
+        self._init_plant_registry()
+
+    def _init_plant_registry(self):
+        """初始化植物注册系统"""
+        try:
+            from plants.plant_registry import plant_registry
+            self.plant_registry = plant_registry
+            self.use_registry = True
+        except ImportError:
+            self.plant_registry = None
+            self.use_registry = False
+            print("警告：植物注册系统不可用，将使用后备映射")
+
+    def _get_plant_image_key(self, plant_type, size=60):
+        """获取植物图片键名，支持注册系统和后备方案"""
+        if self.use_registry and self.plant_registry:
+            try:
+                # 使用注册系统获取图标键名
+                return self.plant_registry.get_plant_icon_key(plant_type)
+            except Exception as e:
+                print(f"从注册系统获取图片键名失败: {e}")
+
+        # 后备方案：使用硬编码映射
+        fallback_map = {
+            'sunflower': 'sunflower_60',
+            'shooter': 'pea_shooter_60',
+            'melon_pult': 'watermelon_60',
+            'cattail': 'cattail_60',
+            'wall_nut': 'wall_nut_60',
+            'cherry_bomb': 'cherry_bomb_60',
+            'cucumber': 'cucumber_60',
+            'dandelion': 'dandelion_60',
+            'lightning_flower': 'lightning_flower_60',
+            'ice_cactus': 'ice_cactus_60',
+            'sun_shroom': 'sun_shroom_60',
+        }
+
+        return fallback_map.get(plant_type, f"{plant_type}_{size}")
 
     def update(self):
         """更新飞行动画"""
@@ -67,21 +108,9 @@ class PlantFlyingAnimation:
         if self.completed:
             return
 
-        # 植物类型到图片键名的映射
-        image_map = {
-            'sunflower': 'sunflower_60',
-            'shooter': 'pea_shooter_60',
-            'melon_pult': 'watermelon_60',
-            'cattail': 'cattail_60',
-            'wall_nut': 'wall_nut_60',
-            'cherry_bomb': 'cherry_bomb_60',
-            'cucumber': 'cucumber_60',
-            'dandelion': 'dandelion_60',
-            'lightning_flower': 'lightning_flower_60',
-            'ice_cactus': 'ice_cactus_60'
-        }
+        # 使用注册系统获取图片键名
+        img_key = self._get_plant_image_key(self.plant_type)
 
-        img_key = image_map.get(self.plant_type)
         if img_key and img_key in scaled_images:
             img = scaled_images[img_key]
 
@@ -100,3 +129,54 @@ class PlantFlyingAnimation:
             draw_y = int(self.current_pos[1] - scaled_img.get_height() // 2)
 
             surface.blit(scaled_img, (draw_x, draw_y))
+        else:
+            # 如果图片不存在，绘制占位符
+            self._draw_placeholder(surface)
+
+    def _draw_placeholder(self, surface):
+        """绘制占位符（当图片不存在时）"""
+        # 创建一个简单的占位符
+        placeholder_size = 60
+        placeholder_color = (255, 0, 255, 128)  # 半透明洋红色
+
+        placeholder_surface = pygame.Surface((placeholder_size, placeholder_size), pygame.SRCALPHA)
+        placeholder_surface.fill(placeholder_color)
+
+        # 计算绘制位置
+        draw_x = int(self.current_pos[0] - placeholder_size // 2)
+        draw_y = int(self.current_pos[1] - placeholder_size // 2)
+
+        surface.blit(placeholder_surface, (draw_x, draw_y))
+
+        # 可选：添加文字标识
+        try:
+            font = pygame.font.Font(None, 12)
+            text = font.render(self.plant_type[:3], True, (255, 255, 255))
+            text_rect = text.get_rect(center=(draw_x + placeholder_size // 2,
+                                              draw_y + placeholder_size // 2))
+            surface.blit(text, text_rect)
+        except:
+            pass
+
+    def get_plant_registry_info(self):
+        """获取植物注册系统信息（用于调试）"""
+        if self.use_registry and self.plant_registry:
+            try:
+                all_plants = self.plant_registry.get_all_plants()
+                return {
+                    'registry_available': True,
+                    'total_plants': len(all_plants),
+                    'current_plant_in_registry': self.plant_type in all_plants,
+                    'image_key': self._get_plant_image_key(self.plant_type)
+                }
+            except Exception as e:
+                return {
+                    'registry_available': False,
+                    'error': str(e)
+                }
+        else:
+            return {
+                'registry_available': False,
+                'using_fallback': True,
+                'image_key': self._get_plant_image_key(self.plant_type)
+            }

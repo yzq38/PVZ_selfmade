@@ -104,22 +104,26 @@ class BaseBullet:
         return exit_candidates[0]
 
     def can_hit_zombie(self, zombie):
-        """检查是否可以击中僵尸"""
+        """检测是否可以击中僵尸 - 基类实现"""
+        # 不攻击被魅惑的僵尸（友军）
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            return False
+        if hasattr(zombie, 'team') and zombie.team == "plant":
+            return False
+
+        # 僵尸必须存活
         if zombie.is_dying:
             return False
 
-        # 基本距离检查
-        distance_check = abs(zombie.col - self.col) < 0.5
+        # 检查行和列
+        if zombie.row != self.row:
+            return False
 
-        # 如果子弹穿越了传送门，需要检查僵尸是否在正确的行
-        if self.has_traveled_through_portal:
-            # 穿越传送门后的子弹只能击中当前行的僵尸
-            row_check = zombie.row == self.row
-        else:
-            # 普通子弹检查原始行
-            row_check = zombie.row == self.original_row
+        # 使用宽松的碰撞检测
+        if abs(zombie.col - self.col) > 0.5:
+            return False
 
-        return distance_check and row_check
+        return True
 
     def can_splash_hit_zombie(self, zombie):
         """检查僵尸是否在溅射范围内（基类默认不支持溅射）"""
@@ -127,6 +131,11 @@ class BaseBullet:
 
     def attack_zombie(self, zombie, level_settings):
         """攻击僵尸，返回是否击中 (0=未击中, 1=击中, 2=免疫)"""
+        # 不攻击被魅惑的僵尸（友军）
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            return 0  # 不造成伤害
+        if hasattr(zombie, 'team') and zombie.team == "plant":
+            return 0  # 不攻击植物阵营的单位
         if zombie.is_dying:
             return 0
 

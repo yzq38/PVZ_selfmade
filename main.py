@@ -1,6 +1,5 @@
 """
 主程序文件 - 植物大战僵尸贴图版
-重构版本 - 更新导入路径到rsc_mng文件夹
 """
 import math
 import pygame
@@ -9,7 +8,8 @@ import sys
 import os
 from animation import AnimationManager, PlantFlyingAnimation, Trophy
 from core.constants import *
-from rsc_mng.audio_manager import BackgroundMusicManager, initialize_sounds, play_sound_with_music_pause, set_sounds_volume
+from rsc_mng.audio_manager import BackgroundMusicManager, initialize_sounds, play_sound_with_music_pause, \
+    set_sounds_volume
 from performance import PerformanceMonitor
 from rsc_mng.resource_loader import load_all_images, preload_scaled_images, initialize_fonts, get_images
 from database import GameDatabase, auto_save_game_progress, restore_game_from_save, check_level_has_save
@@ -19,24 +19,28 @@ from core.game_logic import (
     spawn_zombie_wave_fixed, update_card_cooldowns,
     handle_cucumber_fullscreen_explosion, update_cucumber_effects,
     update_freeze_effects, is_zombie_stunned, is_zombie_spraying,
-    add_sun_safely,initialize_portal_system, update_portal_system, update_zombie_portal_interaction
+    add_sun_safely, initialize_portal_system, update_portal_system, update_zombie_portal_interaction,
+    # 冰道系统相关函数
+    initialize_ice_trail_system, update_ice_trail_system, setup_ice_car_zombie_references,
+    reset_ice_car_spawn_manager, update_charm_effects,update_charm_zombie_system,
+    handle_plant_explosions,
+    handle_zombie_battles
 )
 from core.level_manager import LevelManager
 from core.cards_manager import get_plant_select_grid_new, cards_manager, get_available_cards_new
 from shop import ShopManager, CartManager
 from core.game_state_manager import GameStateManager
 from core.event_handler import EventHandler
-from ui import PlantSelectionManager,RendererManager,PortalManager
-
-
+from ui import PlantSelectionManager, RendererManager, PortalManager, ConveyorBeltManager
+from plants.plant_registry import plant_registry
 
 
 class GameManager:
     """简化后的游戏管理器 - 协调各种专职管理器 levels"""
 
     def __init__(self):
-        # 初始化Pygame
 
+        # 初始化Pygame
         pygame.init()
         pygame.mixer.init()
 
@@ -65,17 +69,17 @@ class GameManager:
         self.music_manager = BackgroundMusicManager()
         self.performance_monitor = PerformanceMonitor()
         self.game_db = GameDatabase()
+        plant_registry.set_managers(cards_manager)
         # 为状态管理器设置数据库引用
         self.state_manager = GameStateManager()
         self.state_manager.game_db = self.game_db  # 传递数据库引用
         self.plant_selection_manager = PlantSelectionManager()
         self.plant_selection_manager.game_manager = self
 
-
         # 专职管理器
-
         self.animation_manager = AnimationManager()
-
+        self.conveyor_belt_manager = None
+        self.seed_rain_manager = None
         self.event_handler = EventHandler(self)
         self.renderer_manager = RendererManager(self)
 
@@ -117,8 +121,6 @@ class GameManager:
                 return self.shop_manager.is_purchased('hammer')
 
             self.shop_manager.has_hammer = has_hammer
-
-
 
     def reset_carts(self):
         """重置小推车系统"""
@@ -186,7 +188,7 @@ class GameManager:
         return x, y
 
     def update_game_logic(self):
-        """更新游戏逻辑"""
+        """更新游戏逻辑 - 添加冰道系统支持"""
         # 更新过渡动画
         should_load_game = self.state_manager.update_transition_animation()
         if should_load_game:
@@ -242,6 +244,9 @@ class GameManager:
 
             # 执行主游戏逻辑更新
             self._update_main_game_logic()
+            if (self.conveyor_belt_manager and
+                    self.game["level_manager"].current_level != 18):
+                self.conveyor_belt_manager.update()
 
     def _set_object_references(self):
         """设置游戏对象的图片和音效引用"""
@@ -285,27 +290,15 @@ class GameManager:
             zombie.health = max(0, zombie.health)
 
     def _update_main_game_logic(self):
-        """更新主要游戏逻辑"""
+        """更新主要游戏逻辑 - 添加冰道系统支持"""
         # 1. 更新植物（向日葵产阳光）- 只调用一次
         update_plant_shooting(self.game, self.game["level_manager"], sounds=self.sounds)
 
-        # 检查樱桃炸弹音效触发（直接检查植物状态）
-        for plant in self.game["plants"]:
-            if plant.plant_type == "cherry_bomb":
-                # 检查是否需要播放爆炸音效
-                if plant.should_play_explosion_sound():
-                    if self.sounds.get("cherry_explosion"):
-                        self.sounds["cherry_explosion"].play()
-                    plant.mark_sound_played()
-            elif plant.plant_type == "cucumber":
-                # 检查黄瓜是否需要播放爆炸音效
-                if plant.should_play_explosion_sound():
-                    if self.sounds.get("cherry_explosion"):
-                        self.sounds["cherry_explosion"].play()
-                    plant.mark_sound_played()
+
 
         # 2. 更新僵尸（移动/攻击）- 这里僵尸可能会攻击植物
         self._update_zombies()
+        self._update_luker_attacks()
 
         # 3. 检查所有植物的状态，特别处理樱桃炸弹和黄瓜
         self._handle_plant_deaths_and_explosions()
@@ -340,20 +333,194 @@ class GameManager:
         # 更新蒲公英种子
         update_dandelion_seeds(self.game, self.game["level_manager"], self.level_settings, self.sounds)
 
-        # 11. 随机增加阳光（每帧0.9%概率+5）- 添加阳光上限检查
-        if random.random() < 0.01:
-            self.game["sun"] = add_sun_safely(self.game["sun"], 5)
+        # 11. 随机增加阳光- 添加阳光上限检查
+        if not self.game["level_manager"].has_special_feature("no_natural_sun"):
+            # 只有在没有"无自然阳光"特性时才随机掉落阳光
+            if random.random() < 0.01:
+                self.game["sun"] = add_sun_safely(self.game["sun"], 5)
 
-        # 12. 更新黄瓜效果状态
-        update_cucumber_effects(self.game, self.sounds)
+        # 12. 更新魅惑系统
+        update_charm_zombie_system(self.game, self.sounds)
 
         # 13. 更新锤子冷却时间
         self._update_hammer_cooldown()
 
         # 14. 更新小推车系统
         self._update_cart_system()
+
         # 15. 更新传送门系统
         self._update_portal_system()
+
+
+        # 16. 初始化冰道系统（如果需要）
+        if self._should_have_ice_trail_system():
+            initialize_ice_trail_system(self.game)
+
+        # 17. 更新冰道系统
+        update_ice_trail_system(self.game)
+
+        # 18. 为冰车僵尸设置游戏状态引用
+        setup_ice_car_zombie_references(self.game)
+        # 19. 处理冰车僵尸的植物碾压
+        self._handle_ice_car_crushing_direct()
+        # 20. 更新种子雨系统
+        self._update_seed_rain_system()
+
+    def _update_seed_rain_system(self):
+        """更新种子雨系统"""
+        if self.seed_rain_manager:
+            self.seed_rain_manager.update()
+
+    def _initialize_seed_rain_system(self):
+        """初始化种子雨系统"""
+        level_manager = self.game.get("level_manager")
+        if level_manager and level_manager.has_special_feature("seed_rain"):
+            # 获取可用植物卡牌
+            available_plants = get_available_cards_new(level_manager, self.level_settings, None)
+
+            # 🔧 额外过滤：确保种子雨中不包含向日葵
+            available_plants = [plant for plant in available_plants
+                                if plant['type'] not in ['sunflower', 'sun_shroom']]
+
+            from ui.seed_rain_manager import SeedRainManager
+            self.seed_rain_manager = SeedRainManager(
+                level_manager,
+                available_plants,
+                self.images
+            )
+        else:
+            self.seed_rain_manager = None
+
+    def _handle_ice_car_crushing_direct(self):
+        """直接处理冰车僵尸碾压，确保植物被正确移除 - 修改版本：支持爆炸植物立即爆炸"""
+        ice_cars = []
+        for zombie in self.game["zombies"]:
+            if (hasattr(zombie, 'zombie_type') and
+                    zombie.zombie_type == "ice_car" and
+                    not zombie.is_dying):
+                ice_cars.append(zombie)
+
+        for ice_car in ice_cars:
+            # 精确的位置检查
+            ice_car_row = ice_car.row
+            ice_car_col_exact = ice_car.col
+            ice_car_col_grid = int(round(ice_car_col_exact))
+
+            # 检查网格重叠（考虑僵尸可能跨越网格边界）
+            cols_to_check = [ice_car_col_grid]
+            if abs(ice_car_col_exact - ice_car_col_grid) > 0.3:
+                # 如果僵尸明显跨越网格边界，检查相邻格子
+                if ice_car_col_exact < ice_car_col_grid:
+                    cols_to_check.insert(0, ice_car_col_grid - 1)
+                else:
+                    cols_to_check.append(ice_car_col_grid + 1)
+
+            # 查找所有可能被碾压的植物
+            plants_found = []
+            for col in cols_to_check:
+                if 0 <= col < 9:  # 确保在游戏网格范围内
+                    for plant in self.game["plants"]:
+                        if plant.row == ice_car_row and plant.col == col:
+                            plants_found.append((plant, col))
+
+            # 处理找到的植物
+            if plants_found:
+                # 按距离排序，优先处理最近的植物
+                plants_found.sort(key=lambda x: abs(x[1] - ice_car_col_exact))
+
+                plant, plant_col = plants_found[0]
+
+                # 关键修改：处理不同类型的植物
+                if plant.plant_type == "luker":
+                    # 地刺爆炸（原有逻辑）
+                    if not ice_car.is_dying:
+                        ice_car.start_death_animation()
+                        if self.sounds and self.sounds.get("cherry_explosion"):
+                            self.sounds["cherry_explosion"].play()
+
+
+                elif plant.plant_type in ["cherry_bomb", "cucumber"]:
+                    # 处理樱桃炸弹和黄瓜的立即爆炸
+                    pass
+
+                    # 立即触发植物爆炸
+                    if plant.plant_type == "cherry_bomb":
+                        if not plant.has_exploded:
+                            plant.explode()  # 触发樱桃炸弹爆炸
+                            # 樱桃炸弹爆炸时，标记范围内的爆炸僵尸为被爆炸杀死
+                            explosion_area = plant.get_explosion_area()
+                            for zombie in self.game["zombies"]:
+                                if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                                    zombie_row = zombie.row
+                                    zombie_col = int(round(zombie.col))
+                                    if (zombie_row, zombie_col) in explosion_area:
+                                        zombie.death_by_explosion = True
+
+                            # 添加音效播放标记，避免重复播放
+                            if not hasattr(plant, '_crush_explosion_sound_played'):
+                                plant._crush_explosion_sound_played = True
+                                if self.sounds and self.sounds.get("cherry_explosion"):
+                                    self.sounds["cherry_explosion"].play()
+
+                    elif plant.plant_type == "cucumber":
+                        if not plant.has_exploded:
+                            plant.explode_cucumber()  # 触发黄瓜爆炸
+                            # 黄瓜爆炸标记所有爆炸僵尸为被爆炸杀死
+                            for zombie in self.game["zombies"]:
+                                if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                                    zombie.death_by_explosion = True
+
+                            # 添加音效播放标记，避免重复播放
+                            if not hasattr(plant, '_crush_explosion_sound_played'):
+                                plant._crush_explosion_sound_played = True
+                                if self.sounds and self.sounds.get("cherry_explosion"):
+                                    self.sounds["cherry_explosion"].play()
+
+                    # 注意：不立即移除爆炸植物，让它们的爆炸效果正常处理
+                    # 爆炸植物会在爆炸动画完成后自动被移除
+
+                else:
+                    # 普通植物的碾压处理（原有逻辑）
+                    try:
+                        self.game["plants"].remove(plant)
+
+
+                        # 更新向日葵计数
+                        if plant.plant_type == "sunflower":
+                            self.game["level_manager"].remove_sunflower()
+
+                        # 播放音效
+                        sound_played = False
+                        sound_options = ["bite", "zombie_eating", "plant_hurt"]
+                        for sound_name in sound_options:
+                            if self.sounds and self.sounds.get(sound_name):
+                                self.sounds[sound_name].play()
+                                sound_played = True
+                                break
+
+                        if not sound_played:
+                            print("警告：没有找到合适的碾压音效")
+
+                    except ValueError:
+                        print(f"警告：尝试移除不存在的植物 {plant.plant_type}")
+                    except Exception as e:
+                        print(f"碾压植物时发生错误：{e}")
+
+    def _should_have_ice_trail_system(self):
+        """检查当前关卡是否应该有冰道系统"""
+        level_manager = self.game.get("level_manager")
+        if not level_manager:
+            return False
+
+        # 检查当前关卡是否启用了冰车僵尸特性
+        return level_manager.has_special_feature("ice_car_zombie_spawn")
+
+    def _update_luker_attacks(self):
+        """更新地刺的攻击（地刺对僵尸隐形，但会主动攻击）"""
+        for plant in self.game["plants"]:
+            if plant.plant_type == "luker":
+                # 地刺主动检测并攻击踩在它身上的僵尸
+                plant.attack_zombie_on_position(self.game["zombies"], self.sounds)
 
     def _update_hammer_cooldown(self):
         """更新锤子冷却时间"""
@@ -372,7 +539,7 @@ class GameManager:
 
             # 如果应该有传送门但没有管理器，重新初始化
             if should_have_portals and not current_portal_manager:
-                print(f"检测到传送门缺失，重新初始化传送门系统")
+
                 initialize_portal_system(self.game, level_manager)
                 return
 
@@ -381,74 +548,6 @@ class GameManager:
             update_portal_system(self.game)
             # 处理僵尸与传送门的交互
             update_zombie_portal_interaction(self.game)
-
-    def _update_cart_system(self):
-        """更新小推车系统"""
-        # 检查僵尸是否触发小推车
-        self.cart_manager.check_zombie_trigger(self.game["zombies"])
-
-        # 更新小推车状态并处理碰撞
-        hit_zombies = self.cart_manager.update_carts(self.game["zombies"])
-
-        # 处理被小推车撞击的僵尸
-        for zombie in hit_zombies:
-            if zombie in self.game["zombies"]:
-                # 立即开始死亡动画
-                zombie.start_death_animation()
-
-    def _handle_plant_deaths_and_explosions(self):
-        """
-        处理植物死亡和樱桃炸弹、黄瓜爆炸逻辑
-        新增方法：确保樱桃炸弹和黄瓜在被啃咬死亡时也能正确爆炸
-        """
-        plants_to_remove = []
-
-        for plant in self.game["plants"]:
-            if plant.plant_type in ["cherry_bomb", "cucumber"]:
-                # 特殊处理爆炸植物
-                if plant.health <= 0 and not plant.has_exploded:
-                    # 被啃咬死亡，立即触发爆炸
-                    if plant.plant_type == "cherry_bomb":
-                        plant.explode()
-                    elif plant.plant_type == "cucumber":
-                        plant.explode_cucumber()
-
-                # 检查是否刚刚爆炸（立即处理伤害）
-                if plant.has_exploded and not hasattr(plant, '_damage_applied'):
-                    if plant.plant_type == "cherry_bomb":
-                        # 樱桃炸弹：处理3x3范围伤害
-                        explosion_area = plant.get_explosion_area()
-                        for zombie in self.game["zombies"]:
-                            zombie_grid_row = zombie.row
-                            zombie_grid_col = int(round(zombie.col))
-                            if (zombie_grid_row, zombie_grid_col) in explosion_area:
-                                self._apply_damage_to_zombie(zombie, plant.explosion_damage)
-
-                    elif plant.plant_type == "cucumber":
-                        # 黄瓜：处理全屏效果
-                        cucumber_explosion_data = plant.get_fullscreen_explosion_data()
-                        if cucumber_explosion_data:
-                            handle_cucumber_fullscreen_explosion(self.game, cucumber_explosion_data, self.sounds)
-
-                    # 标记伤害已应用，避免重复伤害
-                    plant._damage_applied = True
-
-                # 检查爆炸植物是否应该被移除（爆炸动画完成）
-                if plant.should_be_removed:
-                    plants_to_remove.append(plant)
-
-            else:
-                # 处理其他植物的死亡
-                if plant.health <= 0:
-                    plants_to_remove.append(plant)
-
-        # 移除已死亡的植物（爆炸植物等爆炸完成后移除）
-        for plant in plants_to_remove:
-            if plant in self.game["plants"]:
-                self.game["plants"].remove(plant)
-                # 如果是向日葵死亡，更新计数
-                if plant.plant_type == "sunflower":
-                    self.game["level_manager"].remove_sunflower()
 
     def _update_wave_mode_spawning(self):
         """更新波次模式下的僵尸生成 - 修复版本"""
@@ -479,69 +578,93 @@ class GameManager:
                 random.randint(0, GRID_HEIGHT - 1),
                 self.game["level_manager"],
                 False,
-                self.level_settings
+                self.level_settings,
+                self.game
             )
             zombie.images = self.images
             zombie.sounds = self.sounds
+
+            # 如果是冰车僵尸，设置游戏状态引用
+            if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "ice_car":
+                zombie.set_game_state(self.game)
+
             self.game["zombies"].append(zombie)
             self.game["zombies_spawned"] += 1
             self.game["zombie_timer"] = 0
 
-    def _update_zombies(self):
-        """更新僵尸状态（添加阳光上限检查）"""
-
-        for zombie in self.game["zombies"][:]:
-            # 如果僵尸处于死亡动画状态，只更新死亡动画
+    def _update_zombies(game_manager):
+        """更新僵尸状态 - 修复版：眩晕状态下仍能显示喷射粒子"""
+        for zombie in game_manager.game["zombies"][:]:
             if zombie.is_dying:
-                zombie.update(self.game["plants"])
-                # 检查死亡动画是否结束
+                # 处理爆炸僵尸的特殊逻辑
+                if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                    if zombie.explosion_triggered and not zombie.has_exploded:
+                        zombie.explosion_timer -= 1
+                        if zombie.explosion_timer <= 0 and not zombie.has_exploded:
+                            zombie.explode(game_manager.game["plants"], game_manager.game["zombies"])
+
+                            if game_manager.sounds and game_manager.sounds.get("cherry_explosion"):
+                                game_manager.sounds["cherry_explosion"].play()
+
+                zombie.update(game_manager.game["plants"])
                 if zombie.death_animation_timer <= 0:
-                    self.game["zombies"].remove(zombie)
+                    game_manager.game["zombies"].remove(zombie)
 
-                    # 更新击杀计数器（只在非波次模式下计算）
-                    if not self.game["wave_mode"]:
-                        self.game["zombies_killed"] += 1
+                    if not game_manager.game["wave_mode"]:
+                        game_manager.game["zombies_killed"] += 1
 
+                    # 处理阳光掉落和金币掉落
                     should_drop_sun = True
-
-                    if self.game["wave_mode"]:
-                        # 使用特性管理系统检查是否掉落阳光
-                        level_mgr = self.game["level_manager"]
+                    if game_manager.game["wave_mode"]:
+                        level_mgr = game_manager.game["level_manager"]
                         if level_mgr.no_sun_drop_in_wave_mode():
                             should_drop_sun = False
 
                     if should_drop_sun:
-                        # 修改：使用特性管理系统检查随机阳光掉落，并添加阳光上限检查
-                        level_mgr = self.game["level_manager"]
+                        level_mgr = game_manager.game["level_manager"]
+                        sun_amount = 0
                         if level_mgr.has_special_feature("random_sun_drop"):
-                            # 随机掉落5或10阳光
                             sun_amount = random.choice([5, 10])
-                            self.game["sun"] = add_sun_safely(self.game["sun"], sun_amount)
                         else:
-                            # 默认掉落20阳光
-                            self.game["sun"] = add_sun_safely(self.game["sun"], 20)
-                    self._handle_coin_drop()
-                    if self.game["wave_mode"]:
-                        self.game["level_manager"].zombie_defeated()
-                continue
-            # 检查僵尸是否被眩晕，眩晕状态下不更新
-            if not is_zombie_stunned(self.game, zombie):
-                zombie.update(self.game["plants"])
+                            sun_amount = 20
 
-            # 检查僵尸是否正在喷射，如果是则创建喷射粒子
-            # 修改：降低粒子创建频率，每10帧创建一次，而不是每帧都创建
-            if is_zombie_spraying(self.game, zombie):
-                # 添加一个计数器，每10帧创建一次粒子
+                        if level_mgr.has_special_feature("zombie_sun_reduce"):
+                            sun_amount = int(sun_amount * 0.5)
+
+                        if sun_amount > 0:
+                            game_manager.game["sun"] = add_sun_safely(game_manager.game["sun"], sun_amount)
+
+                    game_manager._handle_coin_drop()
+                    if game_manager.game["wave_mode"]:
+                        game_manager.game["level_manager"].zombie_defeated()
+                continue
+
+            # 【关键修复】：先处理黄瓜喷射粒子效果（即使僵尸被眩晕）
+            zombie_id = id(zombie)
+            is_spraying = is_zombie_spraying(game_manager.game, zombie)
+
+            if is_spraying:
+
+
                 if not hasattr(zombie, 'spray_particle_timer'):
                     zombie.spray_particle_timer = 0
 
+
                 zombie.spray_particle_timer += 1
 
-                # 每10帧创建一次粒子，而且数量固定为1-2个
                 if zombie.spray_particle_timer >= 10:
                     zombie.spray_particle_timer = 0
 
-                    # 为僵尸的当前位置创建喷射粒子
+
+                    # 确保僵尸有粒子列表
+                    if not hasattr(zombie, 'spray_particles'):
+                        zombie.spray_particles = []
+
+
+                    # 直接创建粒子
+                    from zombies import CucumberSprayParticle
+
+                    # 计算僵尸位置
                     zombie_x = (BATTLEFIELD_LEFT +
                                 zombie.col * (GRID_SIZE + GRID_GAP) +
                                 GRID_SIZE // 2)
@@ -549,65 +672,187 @@ class GameManager:
                                 zombie.row * (GRID_SIZE + GRID_GAP) +
                                 GRID_SIZE // 2)
 
-                    # 查找黄瓜植物来创建喷射粒子
-                    for plant in self.game["plants"]:
-                        if plant.plant_type == "cucumber" and hasattr(plant, 'create_spray_particles_at_position'):
-                            # 僵尸面向左侧（direction=-1）
-                            plant.create_spray_particles_at_position(zombie_x, zombie_y, direction=-1)
-                            break
+                    # 创建喷射粒子
+                    particle_count = random.randint(1, 2)
+                    for _ in range(particle_count):
+                        offset_x = random.randint(-15, 15)
+                        offset_y = random.randint(-10, 10)
+                        particle = CucumberSprayParticle(
+                            zombie_x + offset_x,
+                            zombie_y + offset_y,
+                            direction=-1  # 向左喷射
+                        )
+                        zombie.spray_particles.append(particle)
 
-            # 修改：使用僵尸中心点检查边界碰撞，而不是僵尸图片边缘
-            zombie_center_col = zombie.col + 0.3  # 僵尸中心点位置（假设僵尸宽度为0.6格）
 
-            # 当僵尸中心点到达战场左边界时触发游戏结束
+            # 更新已存在的喷射粒子（即使僵尸被眩晕）
+            if hasattr(zombie, 'spray_particles'):
+                particles_to_remove = []
+                for particle in zombie.spray_particles:
+                    if not particle.update():
+                        particles_to_remove.append(particle)
+
+                for particle in particles_to_remove:
+                    zombie.spray_particles.remove(particle)
+
+
+
+
+            # 检查僵尸是否被眩晕，眩晕状态下跳过移动等逻辑
+            if is_zombie_stunned(game_manager.game, zombie):
+                continue  # 眩晕的僵尸不移动，但上面已经处理了喷射粒子
+
+            # 关键新增：检查僵尸是否在战斗状态
+            is_in_battle = hasattr(zombie, 'is_attacking') and zombie.is_attacking
+
+            # 冰车僵尸和巨人僵尸的特殊处理
+            should_continue_moving = False
+
+            if hasattr(zombie, 'zombie_type'):
+                if zombie.zombie_type == "ice_car":
+                    # 冰车僵尸始终继续移动，不受战斗状态影响
+                    should_continue_moving = True
+                elif zombie.zombie_type == "giant":
+                    # 巨人僵尸在战斗时保持砸击动作，但不移动
+                    should_continue_moving = False
+
+            # 决定是否应该更新僵尸移动
+            if should_continue_moving or not is_in_battle:
+                # 过滤植物列表，移除对该僵尸不可见的地刺
+                visible_plants = []
+                for plant in game_manager.game["plants"]:
+                    if plant.plant_type == "luker":
+                        if (hasattr(plant, 'is_visible_to_zombie') and
+                                callable(getattr(plant, 'is_visible_to_zombie', None)) and
+                                plant.is_visible_to_zombie(zombie)):
+                            visible_plants.append(plant)
+                    else:
+                        visible_plants.append(plant)
+
+                # 更新僵尸状态
+                zombie.update(visible_plants)
+            else:
+                # 僵尸在战斗状态下不移动，但可以执行其他动作
+                # 这里可以添加战斗动画或特殊行为
+                pass
+
+            # 检查边界碰撞和游戏结束条件
+            zombie_center_col = zombie.col + 0.3
+
             if zombie_center_col < 0:
-                # 检查该行是否有可用的小推车
-                if self.cart_manager.has_cart_in_row(zombie.row):
-                    # 触发小推车，但不立即游戏结束
-                    self.cart_manager.trigger_cart_in_row(zombie.row)
+                if game_manager.cart_manager.has_cart_in_row(zombie.row):
+                    game_manager.cart_manager.trigger_cart_in_row(zombie.row)
                 else:
-                    # 没有小推车，游戏结束
-                    self.game["game_over"] = True
-                    if not self.game["game_over_sound_played"] and self.sounds.get("game_over"):
-                        play_sound_with_music_pause(self.sounds["game_over"], music_manager=self.music_manager)
-                        self.game["game_over_sound_played"] = True
+                    game_manager.game["game_over"] = True
+                    if not game_manager.game["game_over_sound_played"] and game_manager.sounds.get("game_over"):
+                        play_sound_with_music_pause(game_manager.sounds["game_over"],
+                                                    music_manager=game_manager.music_manager)
+                        game_manager.game["game_over_sound_played"] = True
 
+            # 检查僵尸死亡
             if zombie.health <= 0 and not zombie.is_dying:
-                # 开始死亡动画，而不是立即移除
+                # 爆炸僵尸的特殊处理
+                if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                    if not hasattr(zombie, 'death_by_explosion'):
+                        zombie.death_by_explosion = False
+
+                    if not zombie.death_by_explosion:
+                        zombie.explosion_triggered = True
+                        zombie.explosion_timer = zombie.explosion_delay
+
                 zombie.start_death_animation()
 
-                # 更新击杀计数器（只在非波次模式下计算）
-                if not self.game["wave_mode"]:
-                    self.game["zombies_killed"] += 1
+                if not game_manager.game["wave_mode"]:
+                    game_manager.game["zombies_killed"] += 1
 
+                # 处理阳光掉落
                 should_drop_sun = True
-                if self.game["wave_mode"]:
-                    # 使用特性管理系统检查是否掉落阳光
-                    level_mgr = self.game["level_manager"]
+                if game_manager.game["wave_mode"]:
+                    level_mgr = game_manager.game["level_manager"]
                     if level_mgr.no_sun_drop_in_wave_mode():
                         should_drop_sun = False
 
                 if should_drop_sun:
-                    # 修改：使用特性管理系统检查随机阳光掉落，并添加阳光上限检查
-                    level_mgr = self.game["level_manager"]
+                    level_mgr = game_manager.game["level_manager"]
                     if level_mgr.has_special_feature("random_sun_drop"):
-                        # 随机掉落5或10阳光
                         sun_amount = random.choice([5, 10])
-                        self.game["sun"] = add_sun_safely(self.game["sun"], sun_amount)
+                        game_manager.game["sun"] = add_sun_safely(game_manager.game["sun"], sun_amount)
                     else:
-                        # 默认掉落20阳光
-                        self.game["sun"] = add_sun_safely(self.game["sun"], 20)
-                self._handle_coin_drop()
+                        game_manager.game["sun"] = add_sun_safely(game_manager.game["sun"], 20)
 
-                if self.game["wave_mode"]:
-                    self.game["level_manager"].zombie_defeated()
-                coin_drop_chance = random.random()
-                if coin_drop_chance < 0.01:  # 1%概率掉落10￥
-                    self.add_coins(10)
-                elif coin_drop_chance < 0.06:  # 5%概率掉落5￥（累计概率6%，所以是5%）
-                    self.add_coins(5)
-                elif coin_drop_chance < 0.16:  # 10%概率掉落1￥（累计概率16%，所以是10%）
-                    self.add_coins(1)
+                game_manager._handle_coin_drop()
+
+                if game_manager.game["wave_mode"]:
+                    game_manager.game["level_manager"].zombie_defeated()
+
+    def _handle_plant_deaths_and_explosions(self):
+        """处理植物死亡和爆炸 - 增强版：正确处理阵营攻击"""
+        plants_to_remove = []
+
+        for plant in self.game["plants"]:
+            if plant.plant_type in ["cherry_bomb", "cucumber"]:
+                # 特殊处理爆炸植物
+                if plant.health <= 0 and not plant.has_exploded:
+                    if plant.plant_type == "cherry_bomb":
+                        plant.explode()
+                    elif plant.plant_type == "cucumber":
+                        plant.explode_cucumber()
+
+                # 检查是否刚刚爆炸（立即处理伤害）
+                if plant.has_exploded and not hasattr(plant, '_damage_applied'):
+                    if plant.plant_type == "cherry_bomb":
+                        # *** 关键修改：使用修复后的樱桃炸弹方法 ***
+                        if hasattr(plant, 'apply_explosion_damage'):
+                            plant.apply_explosion_damage(self.game["zombies"])
+                        else:
+                            # 备用方案：手动处理樱桃炸弹伤害，排除魅惑僵尸
+                            explosion_area = plant.get_explosion_area()
+                            for zombie in self.game["zombies"]:
+                                # 跳过魅惑僵尸
+                                if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+                                    continue
+                                if hasattr(zombie, 'team') and zombie.team == "plant":
+                                    continue
+
+                                zombie_grid_row = zombie.row
+                                zombie_grid_col = int(round(zombie.col))
+                                if (zombie_grid_row, zombie_grid_col) in explosion_area:
+                                    if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                                        zombie.death_by_explosion = True
+                                    self._apply_damage_to_zombie(zombie, plant.explosion_damage)
+
+                    elif plant.plant_type == "cucumber":
+                        pass
+
+                    plant._damage_applied = True
+
+                if plant.should_be_removed:
+                    plants_to_remove.append(plant)
+
+            else:
+                # 处理其他植物的死亡
+                if plant.health <= 0:
+                    plants_to_remove.append(plant)
+
+        # 移除已死亡的植物
+        for plant in plants_to_remove:
+            if plant in self.game["plants"]:
+                self.game["plants"].remove(plant)
+                if plant.plant_type == "sunflower":
+                    self.game["level_manager"].remove_sunflower()
+
+    def _update_cart_system(self):
+        """更新小推车系统 - 确保正确处理爆炸僵尸"""
+        self.cart_manager.check_zombie_trigger(self.game["zombies"])
+        hit_zombies = self.cart_manager.update_carts(self.game["zombies"])
+
+        for zombie in hit_zombies:
+            if zombie in self.game["zombies"]:
+                # *** 关键修改：小推车撞击爆炸僵尸时标记为被爆炸杀死 ***
+                if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                    zombie.death_by_explosion = True
+
+                zombie.start_death_animation()
 
     def _check_level_completion(self):
         """检查关卡是否完成"""
@@ -703,6 +948,11 @@ class GameManager:
         检查游戏退出时是否应该保存游戏进度
         修复：改进植物选择页面状态判断
         """
+        # 传送带关卡总是允许保存（除非游戏已结束）
+        if (self.game.get("level_manager") and
+                (self.game["level_manager"].current_level == 21 or
+                 self.game["level_manager"].has_special_feature("conveyor_belt"))):
+            return self.state_manager.game_state == "playing" and not self.game["game_over"]
         # 如果游戏不在进行中或已经结束，不保存
         if self.state_manager.game_state != "playing" or self.game["game_over"]:
             return False
@@ -726,7 +976,7 @@ class GameManager:
     def load_pending_game_data(self):
         """
         加载待处理的游戏数据
-        修复：改进植物选择状态的恢复逻辑
+        修复：改进植物选择状态的恢复逻辑，特别处理传送带和种子雨关卡
         """
         pending_data, pending_level = self.state_manager.get_pending_game_data()
 
@@ -734,7 +984,6 @@ class GameManager:
             # 加载保存的游戏
             level_manager = LevelManager("database/levels.json")
             level_manager.start_level(pending_level)
-            # 修改：传入 game_manager 参数以恢复植物选择状态
             restored_game = restore_game_from_save(pending_data, level_manager, self)
             if restored_game:
                 self.game = restored_game
@@ -746,102 +995,150 @@ class GameManager:
                 if cart_data:
                     self.cart_manager.load_save_data(cart_data)
                 else:
-                    # 如果没有小推车数据，重新初始化
                     self.cart_manager.reinitialize_carts()
             else:
                 self.game_db.clear_saved_game(pending_level)
                 self.game = self.state_manager.reset_game(pending_level)
-                # 新游戏时重置小推车
                 self.reset_carts()
         else:
             # 开始新游戏
             self.game = self.state_manager.reset_game(pending_level)
-            # 新游戏时重置小推车
             self.reset_carts()
 
-        # 立即设置图片和声音引用，避免过渡动画期间显示颜色块
+        # 立即设置图片和声音引用
         self._set_object_references()
-        # 只有在没有传送门管理器或者是新游戏时才初始化传送门系统
+
+        # 初始化传送门系统
         level_manager = self.game.get("level_manager")
         if level_manager:
-            # 检查是否已经有传送门管理器（从保存数据恢复的）
             existing_portal_manager = self.game.get("portal_manager")
-
             if existing_portal_manager is None:
-                # 没有传送门管理器，需要初始化（新游戏或不支持传送门的关卡）
                 initialize_portal_system(self.game, level_manager)
 
-            else:
-                # 已有传送门管理器（从保存数据恢复），不重新初始化
-                pass
+            # 初始化种子雨系统
+            self._initialize_seed_rain_system()
 
-                # 只需要设置传送门的图片引用，不重新初始化位置
-                if hasattr(existing_portal_manager, 'portals'):
-                    for portal in existing_portal_manager.portals:
-                        # 传送门不需要images属性，这里预留给将来可能的扩展
-                        pass
+            # **关键修复：检查特殊关卡类型**
+            is_conveyor_belt_level = level_manager.has_special_feature("conveyor_belt")
+            is_seed_rain_level = level_manager.has_special_feature("seed_rain")
+
+            # **传送带或种子雨关卡：跳过植物选择**
+            if is_conveyor_belt_level or is_seed_rain_level:
+                # 强制隐藏植物选择界面
+                self.plant_selection_manager.hide_plant_selection()
+                self.plant_selection_manager.selected_plants_for_game = []
+                self.plant_selection_manager.flying_plants = []
+                self.state_manager.game_paused = False
+
+                if is_conveyor_belt_level:
+                    # 传送带特殊处理
+                    if pending_data and "conveyor_belt_data" in pending_data and pending_data["conveyor_belt_data"]:
+                        pass  # 传送带状态已在 restore_game_from_save 中恢复
+                    else:
+                        self.initialize_conveyor_belt()
+                    print(f"传送带关卡加载完成，关卡: {level_manager.current_level}")
+
+                if is_seed_rain_level:
+                    # 种子雨无需额外初始化，已在 _initialize_seed_rain_system 中处理
+                    print(f"种子雨关卡加载完成，关卡: {level_manager.current_level}")
+
+            else:
+                # **非特殊关卡：按原有逻辑处理植物选择**
+                # 清理传送带和种子雨相关状态
+                if hasattr(self, 'conveyor_belt_manager') and self.conveyor_belt_manager:
+                    self.conveyor_belt_manager = None
+                if hasattr(self, 'seed_rain_manager') and self.seed_rain_manager:
+                    self.seed_rain_manager = None
+
+                # 清理游戏选中状态
+                if "selected" in self.game:
+                    self.game["selected"] = None
+
+                # 清理植物选择管理器的状态
+                self.plant_selection_manager.selected_plants_for_game = []
+                self.plant_selection_manager.flying_plants = []
+
+                # 非特殊关卡：按原有逻辑处理植物选择
+                if pending_level >= 9:
+                    # 第9关以上的逻辑...
+                    current_level_manager = self.game.get("level_manager")
+
+                    if not pending_data:
+                        # 新游戏：显示植物选择界面
+                        self.plant_selection_manager.show_plant_selection(current_level_manager)
+                        self.animation_manager.reset_plant_select_animation()
+                        self.plant_selection_manager.init_plant_select_grid(current_level_manager)
+                        if not hasattr(self, '_returning_to_plant_select'):
+                            self.plant_selection_manager.selected_plants_for_game = []
+                            self.plant_selection_manager.flying_plants = []
+                        else:
+                            delattr(self, '_returning_to_plant_select')
+                    else:
+                        # 恢复保存的游戏逻辑...
+                        plant_select_state = pending_data.get("plant_select_state", {})
+                        show_plant_select = plant_select_state.get("show_plant_select", False)
+                        selected_plants = plant_select_state.get("selected_plants_for_game", [])
+
+                        self.plant_selection_manager.init_plant_select_grid(current_level_manager)
+
+                        if show_plant_select:
+                            if not selected_plants:
+                                print("检测到空的植物选择状态，重新初始化植物选择界面")
+                                self.plant_selection_manager.show_plant_selection(current_level_manager)
+                                self.animation_manager.reset_plant_select_animation()
+                                self.plant_selection_manager.selected_plants_for_game = []
+                                self.plant_selection_manager.flying_plants = []
+                            else:
+                                self.plant_selection_manager.show_plant_selection(current_level_manager)
+                                self.animation_manager.reset_plant_select_animation()
+                                self.plant_selection_manager.selected_plants_for_game = selected_plants.copy()
+                        else:
+                            self.plant_selection_manager.hide_plant_selection()
+                            if selected_plants:
+                                self.plant_selection_manager.selected_plants_for_game = selected_plants.copy()
+                            else:
+                                self.plant_selection_manager.selected_plants_for_game = []
+                            self.plant_selection_manager.flying_plants = []
+                else:
+                    # 第8关及以下：不显示植物选择界面
+                    self.plant_selection_manager.hide_plant_selection()
+                    if not pending_data:
+                        self.plant_selection_manager.selected_plants_for_game = []
+                        self.plant_selection_manager.flying_plants = []
+
+                # 设置游戏暂停状态（特殊关卡不暂停）
+                self.state_manager.game_paused = self.plant_selection_manager.show_plant_select
 
         # 切换到游戏状态
         self.state_manager.switch_to_game_state()
 
-        # 修复：植物选择界面的处理逻辑 - 使用特性管理系统
-        if pending_level >= 9:
-            # 第9关及以上的处理
-            if not pending_data:
-                # 新游戏：显示植物选择界面
-                self.plant_selection_manager.show_plant_selection()
-                self.animation_manager.reset_plant_select_animation()
-                # 第9关及以上：根据关卡特性显示植物选择界面
-                level_manager = LevelManager("database/levels.json")
-                level_manager.start_level(pending_level)
-                self.plant_selection_manager.init_plant_select_grid(level_manager)
-                # 修复：只有在新游戏时才清空选中植物列表
-                if not hasattr(self, '_returning_to_plant_select'):
-                    self.plant_selection_manager.selected_plants_for_game = []
-                    self.plant_selection_manager.flying_plants = []
-                else:
-                    # 清除返回标记
-                    delattr(self, '_returning_to_plant_select')
-            else:
-                # 修复：如果是加载保存的游戏，检查植物选择状态
-                plant_select_state = pending_data.get("plant_select_state", {})
-                show_plant_select = plant_select_state.get("show_plant_select", False)
-                selected_plants = plant_select_state.get("selected_plants_for_game", [])
-
-                # 如果保存时正在显示植物选择但没有选择任何植物，重新初始化
-                if show_plant_select and not selected_plants:
-                    print("检测到空的植物选择状态，重新初始化植物选择界面")
-                    self.plant_selection_manager.show_plant_selection()
-                    self.animation_manager.reset_plant_select_animation()
-                    level_manager = LevelManager("database/levels.json")
-                    level_manager.start_level(pending_level)
-                    self.plant_selection_manager.init_plant_select_grid(level_manager)
-                    self.plant_selection_manager.selected_plants_for_game = []
-                    self.plant_selection_manager.flying_plants = []
-
-                    # 关键修复：确保全局植物限制设置没有被错误激活
-                    # 检查数据库中是否错误地启用了global_plant_limit
-                    if self.game_db and self.game_db.is_global_setting_enabled("global_plant_limit"):
-                        print("警告：检测到global_plant_limit被意外启用，可能导致只显示基础植物")
-                        # 可以选择自动禁用，或者给用户提示
-                        # self.game_db.update_level_setting("global_plant_limit", False)
-            # 注意：如果是加载保存的游戏，植物选择状态已经在 restore_game_from_save 中恢复了
-        else:
-            # 第8关及以下：不显示植物选择界面
-            self.plant_selection_manager.hide_plant_selection()
-            if not pending_data:  # 只有新游戏才清空
-                self.plant_selection_manager.selected_plants_for_game = []
-                self.plant_selection_manager.flying_plants = []
-
-        # 如果显示植物选择则暂停游戏
-        self.state_manager.game_paused = self.plant_selection_manager.show_plant_select
-
         # 清理待处理数据
         self.state_manager.clear_pending_game_data()
+
         if not pending_data:
-            # 开始新游戏时，确保锤子冷却状态被正确初始化
             if "hammer_cooldown" not in self.game:
                 self.game["hammer_cooldown"] = 0
+
+    def initialize_conveyor_belt(self):
+        """初始化传送带系统（仅用于传送带关卡）"""
+        level_manager = self.game.get("level_manager")
+        # 只在有conveyor_belt特性时初始化
+        if level_manager and level_manager.has_special_feature("conveyor_belt"):
+            try:
+                from ui.conveyor_belt_manager import ConveyorBeltManager
+                available_plants = get_available_cards_new(level_manager, self.level_settings, None)
+
+                # 🔧 额外过滤：确保传送带中不包含向日葵
+                available_plants = [plant for plant in available_plants
+                                    if plant['type'] not in ['sunflower', 'sun_shroom']]
+
+                self.conveyor_belt_manager = ConveyorBeltManager(level_manager, available_plants)
+            except ImportError:
+                self.conveyor_belt_manager = None
+        else:
+            self.conveyor_belt_manager = None
+            if level_manager:
+                pass
 
     def manual_reload_config(self):
         """手动重新加载配置"""
@@ -883,7 +1180,7 @@ class GameManager:
 
     def reset_game_with_initialization(self, keep_level=None):
         """
-        重置游戏并重新初始化所有系统（传送门、小推车等）
+        重置游戏并重新初始化所有系统（传送门、小推车、冰道等）
         修复重新开始按钮传送门消失的问题
         """
         # 使用状态管理器重置游戏
@@ -901,29 +1198,75 @@ class GameManager:
         # 重新初始化小推车系统
         self.reset_carts()
 
+        # 重置冰车生成管理器
+        reset_ice_car_spawn_manager()
+
+        # **关键修复：重置传送带系统（如果存在）**
+        if hasattr(self, 'conveyor_belt_manager'):
+            self.conveyor_belt_manager = None
+        if hasattr(self, 'seed_rain_manager') and self.seed_rain_manager:
+            self.seed_rain_manager = None
+
+        # **新增：确保清理游戏选中状态**
+        if "selected" in self.game:
+            self.game["selected"] = None
+
+        # 检查当前关卡类型并进行相应处理
+        if level_manager:
+            is_conveyor_belt_level = (
+                    level_manager.current_level == 21 or
+                    level_manager.has_special_feature("conveyor_belt")
+            )
+            is_seed_rain_level = (
+                    level_manager.current_level == 27 or
+                    level_manager.has_special_feature("seed_rain")
+            )
+
+
+            if is_conveyor_belt_level:
+                # 传送带关卡：强制隐藏植物选择界面
+                self.plant_selection_manager.hide_plant_selection()
+                self.plant_selection_manager.selected_plants_for_game = []
+                self.plant_selection_manager.flying_plants = []
+                self.state_manager.game_paused = False
+
+                # 重新初始化传送带系统
+                self.initialize_conveyor_belt()
+                print(f"传送带关卡重置完成，关卡: {level_manager.current_level}")
+
+            elif is_seed_rain_level:
+                # 种子雨关卡：强制隐藏植物选择界面
+                self.plant_selection_manager.hide_plant_selection()
+                self.plant_selection_manager.selected_plants_for_game = []
+                self.plant_selection_manager.flying_plants = []
+                self.state_manager.game_paused = False
+
+                # 重新初始化种子雨系统
+                self._initialize_seed_rain_system()
+                print(f"种子雨关卡重置完成，关卡: {level_manager.current_level}")
+
+            elif level_manager.current_level >= 9:
+                # 非传送带的第9关及以上：重新初始化植物选择
+                self.plant_selection_manager.hide_plant_selection()
+                self.plant_selection_manager.selected_plants_for_game = []
+                self.plant_selection_manager.flying_plants = []
+
+                # 如果需要显示植物选择界面
+                if not hasattr(self, '_skip_plant_selection_on_reset'):
+                    self.plant_selection_manager.show_plant_selection()
+                    self.animation_manager.reset_plant_select_animation()
+                    self.plant_selection_manager.init_plant_select_grid(level_manager)
+                    self.state_manager.game_paused = True
+            else:
+                # 第8关及以下不显示植物选择
+                self.plant_selection_manager.hide_plant_selection()
+                self.plant_selection_manager.selected_plants_for_game = []
+                self.plant_selection_manager.flying_plants = []
+                self.state_manager.game_paused = False
+
         # 重新初始化其他必要的系统
         if "hammer_cooldown" not in self.game:
             self.game["hammer_cooldown"] = 0
-
-        # 如果是第9关及以上，重新初始化植物选择
-        if level_manager and level_manager.current_level >= 9:
-            # 重置植物选择状态
-            self.plant_selection_manager.hide_plant_selection()
-            self.plant_selection_manager.selected_plants_for_game = []
-            self.plant_selection_manager.flying_plants = []
-
-            # 如果需要显示植物选择界面
-            if not hasattr(self, '_skip_plant_selection_on_reset'):
-                self.plant_selection_manager.show_plant_selection()
-                self.animation_manager.reset_plant_select_animation()
-                self.plant_selection_manager.init_plant_select_grid(level_manager)
-                self.state_manager.game_paused = True
-        else:
-            # 第8关及以下不显示植物选择
-            self.plant_selection_manager.hide_plant_selection()
-            self.plant_selection_manager.selected_plants_for_game = []
-            self.plant_selection_manager.flying_plants = []
-            self.state_manager.game_paused = False
 
     def handle_game_reset_request(self):
         """

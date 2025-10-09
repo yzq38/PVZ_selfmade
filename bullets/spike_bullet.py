@@ -43,10 +43,11 @@ class SpikeBullet(BaseBullet):
         if self.retargeting_cooldown > 0:
             self.retargeting_cooldown -= 1
 
-        # 检查当前目标是否还有效
+        # 检查当前目标是否还有效（新增：检查魅惑状态）
         target_is_valid = (self.target_zombie and
                            self.target_zombie.health > 0 and
-                           self.target_zombie in zombies_list)  # 确保目标还在僵尸列表中
+                           self.target_zombie in zombies_list and  # 确保目标还在僵尸列表中
+                           self._is_zombie_attackable(self.target_zombie))  # 新增：检查是否可攻击
 
         # 如果目标无效且冷却时间已过，尝试重新锁定
         if not target_is_valid and self.retargeting_cooldown <= 0 and zombies_list:
@@ -102,6 +103,15 @@ class SpikeBullet(BaseBullet):
         # 增加边界检查的宽容度，避免子弹过早消失
         return (self.col > grid_width + 2 or self.col < -2 or
                 self.row > grid_height + 2 or self.row < -2)
+
+    def _is_zombie_attackable(self, zombie):
+        """检查僵尸是否可以被攻击（排除被魅惑的僵尸）"""
+        # 检查僵尸是否被魅惑
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            return False
+        if hasattr(zombie, 'team') and zombie.team == "plant":
+            return False
+        return True
 
     def _smooth_turn_to_target(self):
         """平滑转向目标方向，动态调整转弯速率"""
@@ -167,7 +177,7 @@ class SpikeBullet(BaseBullet):
         self.direction_y = math.sin(new_angle)
 
     def _find_nearest_zombie(self, zombies_list):
-        """找到离子弹最近的有效僵尸，改进版本"""
+        """找到离子弹最近的有效僵尸，改进版本（排除被魅惑的僵尸）"""
         if not zombies_list:
             return None
 
@@ -177,6 +187,10 @@ class SpikeBullet(BaseBullet):
         for zombie in zombies_list:
             # 只考虑还活着的僵尸
             if zombie.health <= 0:
+                continue
+
+            # 检查僵尸是否可以被攻击（排除被魅惑的僵尸）
+            if not self._is_zombie_attackable(zombie):
                 continue
 
             # 额外检查：确保僵尸没有被标记为即将死亡（黄瓜效果）

@@ -7,7 +7,13 @@ from .shooter_base import ShooterPlant
 
 class Cattail(ShooterPlant):
     """猫尾草：全地图追踪攻击"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'cattail_60',
+        'display_name': '猫尾草',
+        'category': 'shooter',
+        'preview_alpha': 130,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "cattail", constants, images, level_manager, base_shoot_delay=45)
 

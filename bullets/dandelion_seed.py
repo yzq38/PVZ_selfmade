@@ -21,9 +21,9 @@ class DandelionSeed:
 
         # 种子属性
         self.damage = 25
-        self.speed = 0.024  # 较慢的移动速度
+        self.speed = 0.025  # 较慢的移动速度
         self.life_time = 0
-        self.max_life_time = 250  # 4秒生命周期
+        self.max_life_time = 180  # 3秒生命周期
 
         # 风吹效果参数
         self.wind_amplitude = random.uniform(0.3, 0.5)  # 摆动幅度
@@ -42,7 +42,7 @@ class DandelionSeed:
         # 渐隐消失效果
         self.is_fading = False  # 是否正在渐隐
         self.fade_out_timer = 0  # 渐隐计时器
-        self.fade_out_duration = 90  # 渐隐持续时间（1.5秒 = 90帧）
+        self.fade_out_duration = 60
         self.hit_slow_factor = 0.2  # 击中后的速度减缓因子
 
         # 存储引用
@@ -185,6 +185,11 @@ class DandelionSeed:
 
     def attack_zombie(self, zombie):
         """攻击僵尸 - 修改：只有当僵尸血量确实降低时才开始渐隐动画"""
+        # 不攻击被魅惑的僵尸（友军）
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            return 0  # 不造成伤害
+        if hasattr(zombie, 'team') and zombie.team == "plant":
+            return 0  # 不攻击植物阵营的单位
         if self.has_hit or zombie.health <= 0 or self.is_fading:
             return False
 
@@ -211,8 +216,17 @@ class DandelionSeed:
             if damage_actually_dealt:
                 self.has_hit = True
 
-            # 检查僵尸是否需要开始死亡动画
+            # 🔧 修复：检查僵尸是否需要开始死亡动画（添加爆炸僵尸处理）
             if zombie.health <= 0 and not zombie.is_dying:
+                # 添加爆炸僵尸的特殊处理
+                if hasattr(zombie, 'zombie_type') and zombie.zombie_type == "exploding":
+                    if not hasattr(zombie, 'death_by_explosion'):
+                        zombie.death_by_explosion = False
+                    # 触发爆炸（因为不是被爆炸杀死的）
+                    if not zombie.death_by_explosion:
+                        zombie.explosion_triggered = True
+                        zombie.explosion_timer = zombie.explosion_delay
+
                 zombie.start_death_animation()
 
             return damage_actually_dealt  # 返回是否真正造成了伤害

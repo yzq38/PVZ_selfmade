@@ -1,5 +1,5 @@
 """
-渲染管理模块 - 负责游戏画面的绘制和渲染（集成小推车渲染功能）
+渲染管理模块 - 负责游戏画面的绘制和渲染（集成小推车渲染功能 + 暗夜效果）
 """
 import pygame
 import sys
@@ -52,7 +52,7 @@ class RendererManager:
     def _render_codex_detail(self):
         """渲染详细图鉴页面"""
         # 绘制背景（在draw_codex_detail_page中处理）
-        # 不需要单独绘制背景，因为详细页面会填充整个画面
+        # 不需要单独绘制背景，因为详细页面会填充整个画面15
 
         # 绘制详细图鉴页面
         ui_manager.draw_codex_detail_page(
@@ -130,7 +130,10 @@ class RendererManager:
         # 2. 绘制战场网格（在战场背景之上）
         ui_manager.draw_grid(self.game_manager.game_surface, self.game_manager.images.get('grid_bg_img'))
 
-        # 3. 绘制小推车（在网格之后，游戏对象之前）
+        # 3. 绘制暗夜效果（第22关）- 在网格之后，游戏对象之前
+        self._render_night_effect()
+        self._render_ice_trails()
+        # 4. 绘制小推车（在网格和暗夜效果之后，游戏对象之前）
         self._render_carts()
 
         # 获取可用卡片
@@ -154,7 +157,9 @@ class RendererManager:
             self.game_manager.font_small,
             self.game_manager.font_medium,
             self.game_manager.images,
-            game_manager=self.game_manager
+            game_manager=self.game_manager,
+            conveyor_belt_manager=self.game_manager.conveyor_belt_manager,
+            seed_rain_manager=self.game_manager.seed_rain_manager,
         )
 
         # 如果显示植物选择，在战场区域绘制选择网格
@@ -174,6 +179,45 @@ class RendererManager:
 
         # 绘制淡入淡出效果
         self._render_fade_effect()
+
+    def _render_ice_trails(self):
+        """渲染冰道效果"""
+        # 检查是否有冰道管理器
+        if "ice_trail_manager" in self.game_manager.game:
+            ice_trail_manager = self.game_manager.game["ice_trail_manager"]
+            if ice_trail_manager:
+                # 绘制所有冰道
+                ice_trail_manager.draw(self.game_manager.game_surface)
+
+    def _render_night_effect(self):
+        """渲染暗夜效果 - 仅在第22关生效，只覆盖战场区域"""
+        # 检查当前是否是第22关
+        level_manager = self.game_manager.game.get("level_manager")
+        if not level_manager:
+            return
+
+        if not level_manager.has_special_feature("night"):
+            return
+
+        # 创建仅覆盖战场区域的暗夜效果
+        battlefield_night = pygame.Surface((total_battlefield_width, total_battlefield_height), pygame.SRCALPHA)
+
+        # 轻微的深蓝色半透明效果 - 大幅降低透明度以保持可见性
+        # 从顶部到底部创建轻微的渐变，营造自然的夜晚氛围
+        for y in range(total_battlefield_height):
+            gradient_ratio = y / total_battlefield_height
+            # 顶部稍微更暗，底部稍微更亮，但整体都很透明
+            alpha_variation = int(60 + (20 - 60) * gradient_ratio)
+            alpha_variation = max(150, min(35, alpha_variation))
+
+            # 深蓝色调，营造夜晚氛围
+            gradient_color = (0, 25, 70, alpha_variation)  # 深蓝色，非常低的透明度
+            line_surface = pygame.Surface((total_battlefield_width, 1), pygame.SRCALPHA)
+            line_surface.fill(gradient_color)
+            battlefield_night.blit(line_surface, (0, y))
+
+        # 将暗夜覆盖层只绘制到战场区域
+        self.game_manager.game_surface.blit(battlefield_night, (BATTLEFIELD_LEFT, BATTLEFIELD_TOP))
 
     def _render_portals(self):
         """渲染传送门"""
@@ -324,6 +368,14 @@ class RendererManager:
         if "dandelion_seeds" in self.game_manager.game:
             for seed in self.game_manager.game["dandelion_seeds"]:
                 seed.draw(self.game_manager.game_surface)
+
+        # 绘制种子雨卡牌（在所有游戏对象之上）
+        if (hasattr(self.game_manager, 'seed_rain_manager') and
+                self.game_manager.seed_rain_manager):
+            self.game_manager.seed_rain_manager.draw(
+                self.game_manager.game_surface,
+                self.game_manager.scaled_images
+            )
 
     def _render_trophy(self):
         """渲染奖杯"""
@@ -591,3 +643,16 @@ class RendererManager:
                         setattr(self.game_manager.state_manager, 'insufficient_coins_confirm_btn', confirm_btn)
                     else:
                         self.game_manager.state_manager.insufficient_coins_confirm_btn = confirm_btn
+
+        # 如果显示购买确认对话框
+        if self.game_manager.state_manager.show_purchase_confirm:
+            item = self.game_manager.state_manager.get_pending_purchase_item()
+            if item:
+                ui_manager.draw_purchase_confirm_dialog(
+                    self.game_manager.game_surface,
+                    item,
+                    self.game_manager.coins,
+                    self.game_manager.font_large,
+                    self.game_manager.font_medium,
+                    self.game_manager.font_small
+                )

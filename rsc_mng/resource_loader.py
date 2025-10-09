@@ -42,11 +42,16 @@ def load_all_images():
             'dandelion_img': load_image("dandelion", (GRID_SIZE, GRID_SIZE)),
             'lightning_flower_img': load_image("lightning_flower", (GRID_SIZE, GRID_SIZE)),
             'ice_cactus_img': load_image("ice_cactus", (GRID_SIZE, GRID_SIZE)),
+            'sun_shroom_img':load_image("sun_shroom", (GRID_SIZE, GRID_SIZE)),
+            'moon_flower_img':load_image("moon_flower", (GRID_SIZE, GRID_SIZE)),
+            'luker_img':load_image("luker", (GRID_SIZE, GRID_SIZE)),
+            'psychedelic_pitcher_img':load_image("psychedelic_pitcher", (GRID_SIZE, GRID_SIZE)),
 
             # 僵尸图片
             'zombie_img': load_image("zombie", (GRID_SIZE, GRID_SIZE)),
             'zombie_armor_img': load_image("zombie_armor", (GRID_SIZE, GRID_SIZE)),
             'giant_zombie_img': load_image("giant_zombie", (int(GRID_SIZE * 1.5), int(GRID_SIZE * 1.5))),
+            'ice_car_zombie_img': load_image("ice_car_zombie", (int(GRID_SIZE * 1.3), int(GRID_SIZE * 1.3))),
 
             # 子弹图片
             'pea_img': load_image("pea", (20, 20)),
@@ -54,6 +59,8 @@ def load_all_images():
             'spike_img': load_image("spike", (24, 18)),
             'dandelion_seed_img': load_image("dandelion_seed", (24, 24)),
             'ice_bullet_img': load_image("ice_bullet", (24, 24)),
+            'small_moon_img': load_image("small_moon", (22, 22)),
+            'small_psychedelic_bullet_img': load_image("small_psychedelic_bullet", (20, 20)),
 
             # 防具图片
             'armor_img': load_image("armor", (GRID_SIZE - 10, GRID_SIZE - 10)),
@@ -64,6 +71,7 @@ def load_all_images():
             'shovel_img': load_image("shovel", (SHOVEL_WIDTH, SHOVEL_HEIGHT)),
             'hammer_img': load_image("hammer", (SHOVEL_WIDTH, SHOVEL_HEIGHT)),
             'settings_img': load_image("settings", (SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)),
+            'ice_lane_img': load_image("ice_lane", (GRID_SIZE, GRID_SIZE)),
 
             # 主菜单背景
             'menu_bg_img': load_image("menu_bg", (BASE_WIDTH, BASE_HEIGHT)),
@@ -100,67 +108,122 @@ def get_images():
         'lightning_flower': images.get('lightning_flower_img'),
         'ice_cactus': images.get('ice_cactus_img'),
         'ice_bullet': images.get('ice_bullet_img'),
+        'sun_shroom_img': images.get('sun_shroom_img'),
+        'moon_flower_img': images.get('moon_flower_img'),
+        'small_moon_img': images.get('small_moon_img'),
+        'luker_img': images.get('luker_img'),
+        'psychedelic_pitcher_img': images.get('psychedelic_pitcher_img'),
+        'small_psychedelic_bullet_img': images.get('small_psychedelic_bullet_img'),
     }
 
 
 def preload_scaled_images():
-    """预先加载所有需要缩放的图片，避免运行时缩放"""
+    """预先加载所有需要缩放的图片，支持植物注册系统"""
     scaled_images = {}
     images = load_all_images()
 
-    # 预缓存植物卡片图片（60x60）
-    if images.get('pea_shooter_img'):
-        scaled_images['pea_shooter_60'] = pygame.transform.scale(images['pea_shooter_img'], (60, 60))
-    if images.get('sunflower_img'):
-        scaled_images['sunflower_60'] = pygame.transform.scale(images['sunflower_img'], (60, 60))
-    if images.get('watermelon_img'):
-        scaled_images['watermelon_60'] = pygame.transform.scale(images['watermelon_img'], (60, 60))
-    if images.get('cattail_img'):
-        scaled_images['cattail_60'] = pygame.transform.scale(images['cattail_img'], (60, 60))
-    if images.get('wall_nut_img'):
-        scaled_images['wall_nut_60'] = pygame.transform.scale(images['wall_nut_img'], (60, 60))
-    if images.get('cherry_bomb_img'):
-        scaled_images['cherry_bomb_60'] = pygame.transform.scale(images['cherry_bomb_img'], (60, 60))
-    if images.get('cucumber_img'):
-        scaled_images['cucumber_60'] = pygame.transform.scale(images['cucumber_img'], (60, 60))
-    if images.get('dandelion_img'):
-        scaled_images['dandelion_60'] = pygame.transform.scale(images['dandelion_img'], (60, 60))
-    if images.get('lightning_flower_img'):
-        scaled_images['lightning_flower_60'] = pygame.transform.scale(images['lightning_flower_img'], (60, 60))
-    if images.get('ice_cactus_img'):
-        scaled_images['ice_cactus_60'] = pygame.transform.scale(images['ice_cactus_img'], (60, 60))
+    # 尝试导入植物注册系统
+    try:
+        from plants.plant_registry import plant_registry
+        use_registry = True
+    except ImportError:
+        use_registry = False
 
+    # 定义植物图片映射
+    plant_image_map = {
+        'shooter': ('pea_shooter_img', 'pea_shooter'),
+        'sunflower': ('sunflower_img', 'sunflower'),
+        'melon_pult': ('watermelon_img', 'watermelon'),
+        'cattail': ('cattail_img', 'cattail'),
+        'wall_nut': ('wall_nut_img', 'wall_nut'),
+        'cherry_bomb': ('cherry_bomb_img', 'cherry_bomb'),
+        'cucumber': ('cucumber_img', 'cucumber'),
+        'dandelion': ('dandelion_img', 'dandelion'),
+        'lightning_flower': ('lightning_flower_img', 'lightning_flower'),
+        'ice_cactus': ('ice_cactus_img', 'ice_cactus'),
+        'sun_shroom': ('sun_shroom_img', 'sun_shroom'),
+        'moon_flower':('moon_flower_img','moon_flower'),
+        'luker':('luker_img','luker'),
+        'psychedelic_pitcher':('psychedelic_pitcher_img','psychedelic_pitcher'),
 
-    # 添加原始大小的图像（用于图鉴的 large_icon_key）
-    if images.get('pea_shooter_img'):
-        scaled_images['pea_shooter_img'] = images['pea_shooter_img']
-    if images.get('sunflower_img'):
-        scaled_images['sunflower_img'] = images['sunflower_img']
-    if images.get('watermelon_img'):
-        scaled_images['watermelon_img'] = images['watermelon_img']
-    if images.get('cattail_img'):
-        scaled_images['cattail_img'] = images['cattail_img']
-    if images.get('wall_nut_img'):
-        scaled_images['wall_nut_img'] = images['wall_nut_img']
-    if images.get('cherry_bomb_img'):
-        scaled_images['cherry_bomb_img'] = images['cherry_bomb_img']
-    if images.get('cucumber_img'):
-        scaled_images['cucumber_img'] = images['cucumber_img']
-    if images.get('dandelion_img'):
-        scaled_images['dandelion_img'] = images['dandelion_img']
-    if images.get('lightning_flower_img'):
-        scaled_images['lightning_flower_img'] = images['lightning_flower_img']
-    if images.get('ice_cactus_img'):
-        scaled_images['ice_cactus_img'] = images['ice_cactus_img']
+    }
+
+    # 使用注册系统或手动方式加载植物图片
+    if use_registry:
+        # 从注册表获取所有植物类型
+        for plant_type in plant_registry.get_all_plants():
+            if plant_type in plant_image_map:
+                img_key, img_name = plant_image_map[plant_type]
+                if images.get(img_key):
+                    # 获取植物期望的图标键名
+                    icon_key = plant_registry.get_plant_icon_key(plant_type)
+
+                    # 如果键名包含尺寸信息，提取并缩放
+                    if '_60' in icon_key:
+                        scaled_images[icon_key] = pygame.transform.scale(images[img_key], (60, 60))
+                    else:
+                        scaled_images[icon_key] = images[img_key]
+
+                    # 同时保留原始大小
+                    scaled_images[img_key] = images[img_key]
+    else:
+        # 后备方案：手动加载
+        for plant_type, (img_key, img_name) in plant_image_map.items():
+            if images.get(img_key):
+                # 创建60x60版本
+                scaled_images[f'{img_name}_60'] = pygame.transform.scale(images[img_key], (60, 60))
+                # 保留原始版本
+                scaled_images[img_key] = images[img_key]
 
     # 添加僵尸图像（用于僵尸图鉴）
     if images.get('zombie_img'):
         scaled_images['zombie_img'] = images['zombie_img']
         scaled_images['zombie_60'] = pygame.transform.scale(images['zombie_img'], (60, 60))
+
+        # 新增：生成爆炸僵尸图片（基于普通僵尸 + 红色覆盖层）
+        # 生成大尺寸爆炸僵尸图片（用于图鉴详细页面）
+        exploding_zombie_img = images['zombie_img'].copy()
+        red_overlay_large = pygame.Surface(exploding_zombie_img.get_size(), pygame.SRCALPHA)
+        red_overlay_large.fill((255, 0, 0, 80))  # 半透明红色，透明度80
+        exploding_zombie_img.blit(red_overlay_large, (0, 0))
+        scaled_images['exploding_zombie_img'] = exploding_zombie_img
+
+        # 生成60x60爆炸僵尸图标（用于图鉴网格）
+        exploding_zombie_60 = pygame.transform.scale(images['zombie_img'], (60, 60))
+        red_overlay_small = pygame.Surface((60, 60), pygame.SRCALPHA)
+        red_overlay_small.fill((255, 0, 0, 80))  # 半透明红色，透明度80
+        exploding_zombie_60.blit(red_overlay_small, (0, 0))
+        scaled_images['exploding_zombie_60'] = exploding_zombie_60
+
+        # 新增：生成铁门僵尸图片（基于普通僵尸 + 装甲图片）
+        if images.get('armor_img'):
+            # 生成大尺寸铁门僵尸图片（用于图鉴详细页面）
+            armored_zombie_img = images['zombie_img'].copy()
+            # 缩放装甲图片以适应僵尸大小
+            armor_scaled = pygame.transform.scale(images['armor_img'],
+                                                  (images['zombie_img'].get_width() - 10,
+                                                   images['zombie_img'].get_height() - 10))
+            # 将装甲图片叠加到僵尸图片上（稍微偏移以显示层次感）
+            armor_x = 5
+            armor_y = 5
+            armored_zombie_img.blit(armor_scaled, (armor_x, armor_y))
+            scaled_images['armored_zombie_img'] = armored_zombie_img
+
+            # 生成60x60铁门僵尸图标（用于图鉴网格）
+            armored_zombie_60 = pygame.transform.scale(images['zombie_img'], (60, 60))
+            armor_scaled_small = pygame.transform.scale(images['armor_img'], (50, 50))
+            armored_zombie_60.blit(armor_scaled_small, (5, 5))
+            scaled_images['armored_zombie_60'] = armored_zombie_60
+        else:
+            # 如果没有装甲图片，使用默认的僵尸图片
+            scaled_images['armored_zombie_img'] = images['zombie_img']
+            scaled_images['armored_zombie_60'] = pygame.transform.scale(images['zombie_img'], (60, 60))
+
     if images.get('zombie_armor_img'):
         scaled_images['zombie_armor_img'] = images['zombie_armor_img']
         scaled_images['cone_zombie_60'] = pygame.transform.scale(images['zombie_armor_img'], (60, 60))
         scaled_images['cone_zombie_img'] = images['zombie_armor_img']
+
     if images.get('giant_zombie_img'):
         scaled_images['giant_zombie_img'] = images['giant_zombie_img']
         scaled_images['bucket_zombie_60'] = pygame.transform.scale(images['giant_zombie_img'], (60, 60))
@@ -168,10 +231,13 @@ def preload_scaled_images():
         scaled_images['fast_zombie_60'] = pygame.transform.scale(images['giant_zombie_img'], (60, 60))
         scaled_images['fast_zombie_img'] = images['giant_zombie_img']
         scaled_images['giant_zombie_60'] = pygame.transform.scale(images['giant_zombie_img'], (60, 60))
-        scaled_images['armored_zombie_60'] = pygame.transform.scale(images['giant_zombie_img'], (60, 60))
-        scaled_images['armored_zombie_img'] = images['giant_zombie_img']
+    if images.get('ice_car_zombie_img'):
+        scaled_images['ice_car_zombie_img'] = images['ice_car_zombie_img']
+        scaled_images['ice_car_zombie_60'] = pygame.transform.scale(images['ice_car_zombie_img'], (60, 60))
 
-
+    if images.get('ice_lane_img'):
+        scaled_images['ice_lane_img'] = images['ice_lane_img']
+        scaled_images['ice_lane_60'] = pygame.transform.scale(images['ice_lane_img'], (60, 60))
 
     # 预缓存设置按钮图片
     if images.get('settings_img'):
@@ -210,6 +276,57 @@ def preload_scaled_images():
 
     return scaled_images
 
+
+def verify_plant_images(scaled_images):
+    """验证所有植物图片是否正确加载"""
+    try:
+        from plants.plant_registry import plant_registry
+
+        missing_images = []
+        for plant_type in plant_registry.get_all_plants():
+            icon_key = plant_registry.get_plant_icon_key(plant_type)
+            if icon_key not in scaled_images:
+                missing_images.append((plant_type, icon_key))
+
+        if missing_images:
+            print("警告：以下植物图片缺失:")
+            for plant_type, icon_key in missing_images:
+                print(f"  - {plant_type}: {icon_key}")
+        else:
+            print("所有植物图片加载成功")
+
+        return len(missing_images) == 0
+    except ImportError:
+        return True  # 没有注册系统时跳过验证
+
+
+def get_plant_image(scaled_images, plant_type, size=60):
+    """获取植物图片的辅助函数"""
+    try:
+        from plants.plant_registry import plant_registry
+        icon_key = plant_registry.get_plant_icon_key(plant_type)
+    except ImportError:
+        # 后备方案
+        icon_key = f"{plant_type}_{size}"
+
+    return scaled_images.get(icon_key)
+
+
+def create_placeholder_image(size=(60, 60), color=(255, 0, 255, 128)):
+    """创建占位符图片"""
+    surf = pygame.Surface(size, pygame.SRCALPHA)
+    surf.fill(color)
+
+    # 添加文字提示
+    try:
+        font = pygame.font.Font(None, 12)
+        text = font.render("?", True, (255, 255, 255))
+        text_rect = text.get_rect(center=(size[0] // 2, size[1] // 2))
+        surf.blit(text, text_rect)
+    except:
+        pass
+
+    return surf
 
 def initialize_fonts():
     """改进的字体初始化函数"""

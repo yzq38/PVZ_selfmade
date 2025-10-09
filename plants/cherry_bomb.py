@@ -10,7 +10,13 @@ from .particles import ExplosionParticle
 
 class CherryBomb(BasePlant):
     """樱桃炸弹：3x3范围爆炸伤害"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'cherry_bomb_60',
+        'display_name': '樱桃炸弹',
+        'category': 'explosive',
+        'preview_alpha': 128,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "cherry_bomb", constants, images, level_manager)
 
@@ -268,3 +274,41 @@ class CherryBomb(BasePlant):
         """绘制爆炸粒子"""
         for particle in self.explosion_particles:
             particle.draw(surface)
+
+    def get_explosion_targets(self, zombies):
+        """获取爆炸目标 - 排除魅惑僵尸"""
+        explosion_area = self.get_explosion_area()
+        targets = []
+
+        for zombie in zombies:
+            # 跳过魅惑僵尸（它们属于植物阵营）
+            if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+                continue
+            if hasattr(zombie, 'team') and zombie.team == "plant":
+                continue
+
+            zombie_row = zombie.row
+            zombie_col = int(zombie.col)
+
+            if (zombie_row, zombie_col) in explosion_area:
+                targets.append(zombie)
+
+        return targets
+
+    def apply_explosion_damage(self, zombies):
+        """对目标僵尸造成爆炸伤害"""
+        targets = self.get_explosion_targets(zombies)
+
+        for zombie in targets:
+            # 标记被爆炸性伤害杀死（防止爆炸僵尸连锁爆炸）
+            if hasattr(zombie, 'take_damage_from_explosion'):
+                zombie.take_damage_from_explosion()
+
+            # 造成爆炸伤害
+            zombie.health -= self.explosion_damage
+
+            # 检查是否死亡
+            if zombie.health <= 0 and not zombie.is_dying:
+                zombie.start_death_animation()
+
+        return len(targets)  # 返回受影响的僵尸数量

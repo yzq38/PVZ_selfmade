@@ -140,8 +140,15 @@ def draw_progress_bar(surface, level_manager, game_state, wave_mode, font_small)
 
 def draw_ui(surface, sun, cards, shovel, selected, level_manager, wave_mode=False,
             wave_timer=0, wave_interval=360, show_settings=False, game_state=None,
-            level_settings=None, scaled_images=None, font_small=None, font_medium=None, images=None, game_manager=None):
-    """绘制UI：阳光+铲子+卡槽+波次信息+卡片冷却+阳光不足灰化"""
+            level_settings=None, scaled_images=None, font_small=None, font_medium=None, images=None, game_manager=None
+            , conveyor_belt_manager=None, seed_rain_manager = None,plant_registry=None):
+    """绘制UI：阳光+铲子+卡槽+波次信息+卡牌冷却+阳光不足灰化 - 现在使用植物注册表"""
+
+    # 导入植物注册表（如果未传入参数）
+    if plant_registry is None:
+        from plants.plant_registry import plant_registry as global_plant_registry
+        plant_registry = global_plant_registry
+
     # 1. 绘制顶部UI背景（深灰）
     pygame.draw.rect(surface, GRAY_DARK, (0, 0, BASE_WIDTH, BATTLEFIELD_TOP))
     # 2. 绘制底部UI背景（深灰）
@@ -180,7 +187,7 @@ def draw_ui(surface, sun, cards, shovel, selected, level_manager, wave_mode=Fals
     # 5. 绘制进度条（移动到设置按钮左边）
     draw_progress_bar(surface, level_manager, game_state, wave_mode, font_small)
 
-    # 6. 绘制铲子（卡片左侧）
+    # 6. 绘制铲子（卡牌左侧）
     shovel_rect = pygame.Rect(SHOVEL_X, SHOVEL_Y, SHOVEL_WIDTH, SHOVEL_HEIGHT)
     if images and images.get('shovel_img'):
         surface.blit(images['shovel_img'], (SHOVEL_X, SHOVEL_Y))
@@ -262,135 +269,136 @@ def draw_ui(surface, sun, cards, shovel, selected, level_manager, wave_mode=Fals
             text_rect = cooldown_text.get_rect(center=(HAMMER_X + SHOVEL_WIDTH // 2, HAMMER_Y + SHOVEL_HEIGHT // 2))
             surface.blit(cooldown_text, text_rect)
 
-    # 创建卡槽价格专用字体
-    price_font = pygame.font.Font(None, 24)
+    # **关键修复：正确检查传送带特性**
+    # 检查当前关卡是否真的启用了传送带特性
+    has_conveyor_belt_feature = (level_manager and
+                                 level_manager.has_special_feature("conveyor_belt"))
+    has_seed_rain_feature = (level_manager and
+                                 level_manager.has_special_feature("seed_rain"))
 
-    # 7. 绘制植物卡槽（包含冷却效果和阳光不足灰化）
-    card_cooldowns = game_state.get("card_cooldowns", {}) if game_state else {}
+    if has_conveyor_belt_feature and conveyor_belt_manager:
+        # 使用传送带模式:绘制传送带而不是传统卡槽
+        conveyor_belt_manager.draw(surface, sun, scaled_images, font_small)
+    elif has_seed_rain_feature and seed_rain_manager:
+        pass
+    else:
+        # 传统卡槽模式：绘制普通的植物卡片槽
 
-    # 检查是否购买了第七卡槽
-    base_max_cards = 6  # 基础卡槽数量
-    if hasattr(game_manager, 'shop_manager') and game_manager.shop_manager.has_7th_card_slot():
-        base_max_cards = 7  # 如果购买了第七卡槽，增加到7个
+        # 创建卡槽价格专用字体
+        price_font = pygame.font.Font(None, 24)
 
-    max_cards = max(base_max_cards, len(cards))  # 至少显示基础数量的卡槽，如果卡片更多则显示更多
+        # 7. 绘制植物卡槽（包含冷却效果和阳光不足灰化） - 使用植物注册表
+        card_cooldowns = game_state.get("card_cooldowns", {}) if game_state else {}
 
-    # 导入卡牌管理器
-    import core.cards_manager
-    for i in range(max_cards):
-        card_x = CARD_START_X + i * CARD_WIDTH
-        card_rect = pygame.Rect(card_x, CARD_Y, CARD_WIDTH, CARD_HEIGHT)
+        # 检查是否购买了第七卡槽
+        base_max_cards = 6  # 基础卡槽数量
+        if hasattr(game_manager, 'shop_manager') and game_manager.shop_manager.has_7th_card_slot():
+            base_max_cards = 7  # 如果购买了第七卡槽，增加到7个
 
-        if images and images.get('card_bg_img'):
-            surface.blit(images['card_bg_img'], (card_x, CARD_Y))
-        else:
-            pygame.draw.rect(surface, (100, 100, 100), card_rect)
+        max_cards = max(base_max_cards, len(cards))  # 至少显示基础数量的卡槽，如果卡片更多则显示更多
 
-        if i < len(cards):
-            # 有卡片的槽位 - 使用统一的卡牌冷却管理
-            card = cards[i]
+        for i in range(max_cards):
+            card_x = CARD_START_X + i * CARD_WIDTH
+            card_rect = pygame.Rect(card_x, CARD_Y, CARD_WIDTH, CARD_HEIGHT)
 
-            # 检查向日葵是否可用
-            card_available = True
-            if card["type"] == "sunflower" and not level_manager.can_plant_sunflower():
-                card_available = False
-            if card["type"] == "sunflower" and level_manager.get_sunflower_limit() == 0:
-                card_available = False
-
-            # 检查卡片是否在冷却中 - 使用统一的冷却管理
-            is_cooling = False
-            cooldown_remaining = 0
-
-            # 检查是否需要冷却（第八关强制启用）
-            needs_cooldown = (level_manager.has_card_cooldown() or
-                              (level_settings and level_settings.get("all_card_cooldown", False)) or
-                              level_manager.current_level == 8)
-
-            if needs_cooldown:
-                if card["type"] in card_cooldowns:
-                    cooldown_remaining = card_cooldowns[card["type"]]
-                    is_cooling = cooldown_remaining > 0
-
-            # 检查阳光是否足够
-            sun_sufficient = sun >= card["cost"]
-
-            # 综合判断卡片是否完全可用（考虑所有条件）
-            card_fully_available = card_available and not is_cooling and sun_sufficient
-
-            # 绘制卡片背景
             if images and images.get('card_bg_img'):
-                if card_fully_available:
-                    surface.blit(images['card_bg_img'], (card_x, CARD_Y))
-                else:
-                    gray_surface = images['card_bg_img'].copy()
-                    gray_surface.fill((128, 128, 128), special_flags=pygame.BLEND_MULT)
-                    surface.blit(gray_surface, (card_x, CARD_Y))
+                surface.blit(images['card_bg_img'], (card_x, CARD_Y))
             else:
-                color = card["color"] if card_fully_available else (100, 100, 100)
-                pygame.draw.rect(surface, color, card_rect)
+                pygame.draw.rect(surface, (100, 100, 100), card_rect)
 
-            # 使用预缓存的植物图标
-            if scaled_images:
-                plant_img_key = None
-                if card["type"] == "shooter":
-                    plant_img_key = 'pea_shooter_60'
-                elif card["type"] == "sunflower":
-                    plant_img_key = 'sunflower_60'
-                elif card["type"] == "melon_pult":
-                    plant_img_key = 'watermelon_60'
-                elif card["type"] == "cattail":
-                    plant_img_key = 'cattail_60'
-                elif card["type"] == "wall_nut":
-                    plant_img_key = 'wall_nut_60'
-                elif card["type"] == "cherry_bomb":
-                    plant_img_key = 'cherry_bomb_60'
-                elif card["type"] == "cucumber":
-                    plant_img_key = 'cucumber_60'
-                elif card["type"] == "dandelion":
-                    plant_img_key = 'dandelion_60'
-                elif card["type"] == "lightning_flower":
-                    plant_img_key = 'lightning_flower_60'
-                elif card["type"] == "ice_cactus":
-                    plant_img_key = 'ice_cactus_60'
+            if i < len(cards):
+                # 有卡片的槽位 - 使用植物注册表获取信息
+                card = cards[i]
+                plant_type = card["type"]
 
-                if plant_img_key:
+                # 检查向日葵是否可用
+                card_available = True
+                if plant_type == "sunflower" and not level_manager.can_plant_sunflower():
+                    card_available = False
+                if plant_type == "sunflower" and level_manager.get_sunflower_limit() == 0:
+                    card_available = False
+
+                # 检查卡片是否在冷却中 - 使用统一的冷却管理
+                is_cooling = False
+                cooldown_remaining = 0
+
+                # 检查是否需要冷却（第八关强制启用）
+                needs_cooldown = (level_manager.has_card_cooldown() or
+                                  (level_settings and level_settings.get("all_card_cooldown", False)) or
+                                  level_manager.current_level == 8)
+
+                if needs_cooldown:
+                    if plant_type in card_cooldowns:
+                        cooldown_remaining = card_cooldowns[plant_type]
+                        is_cooling = cooldown_remaining > 0
+
+                # 使用植物注册表获取价格
+                plant_cost = plant_registry.get_plant_price(plant_type) if plant_registry else card.get("cost", 0)
+
+                # 检查阳光是否足够
+                sun_sufficient = sun >= plant_cost
+
+                # 综合判断卡片是否完全可用（考虑所有条件）
+                card_fully_available = card_available and not is_cooling and sun_sufficient
+
+                # 绘制卡片背景
+                if images and images.get('card_bg_img'):
                     if card_fully_available:
-                        if plant_img_key in scaled_images:
-                            surface.blit(scaled_images[plant_img_key], (card_x + 10, CARD_Y + 10))
+                        surface.blit(images['card_bg_img'], (card_x, CARD_Y))
                     else:
-                        # 使用预缓存的灰化图片
-                        gray_key = plant_img_key + '_gray'
-                        if gray_key in scaled_images:
-                            surface.blit(scaled_images[gray_key], (card_x + 10, CARD_Y + 10))
+                        gray_surface = images['card_bg_img'].copy()
+                        gray_surface.fill((128, 128, 128), special_flags=pygame.BLEND_MULT)
+                        surface.blit(gray_surface, (card_x, CARD_Y))
+                else:
+                    color = card["color"] if card_fully_available else (100, 100, 100)
+                    pygame.draw.rect(surface, color, card_rect)
 
-            # 选中卡片时画白色边框（但冷却中或阳光不足的不能选中）
-            if selected == card["type"] and card_fully_available:
-                pygame.draw.rect(surface, WHITE, card_rect, 3)
+                # 使用植物注册表获取植物图标
+                if scaled_images and plant_registry:
+                    plant_img_key = plant_registry.get_plant_icon_key(plant_type)
 
-            # 绘制卡片成本（右下）- 使用24号字体
-            cost_color = WHITE if sun_sufficient else RED  # 阳光不足时成本显示为红色
-            cost_text = price_font.render(f"{card['cost']}", True, cost_color)
-            surface.blit(cost_text, (card_rect.right - 55, card_rect.bottom - 25))
+                    if plant_img_key and plant_img_key in scaled_images:
+                        if card_fully_available:
+                            surface.blit(scaled_images[plant_img_key], (card_x + 10, CARD_Y + 10))
+                        else:
+                            # 使用预缓存的灰化图片
+                            gray_key = plant_img_key + '_gray'
+                            if gray_key in scaled_images:
+                                surface.blit(scaled_images[gray_key], (card_x + 10, CARD_Y + 10))
+                            else:
+                                # 如果没有灰化图片，手动创建灰化效果
+                                img = scaled_images[plant_img_key].copy()
+                                img.fill((128, 128, 128), special_flags=pygame.BLEND_MULT)
+                                surface.blit(img, (card_x + 10, CARD_Y + 10))
 
-            # 如果卡片不可用（向日葵限制），显示禁用标识
-            if not card_available:
-                pygame.draw.line(surface, RED, card_rect.topleft, card_rect.bottomright, 3)
-                pygame.draw.line(surface, RED, card_rect.topright, card_rect.bottomleft, 3)
+                # 选中卡片时画白色边框（但冷却中或阳光不足的不能选中）
+                if selected == plant_type and card_fully_available:
+                    pygame.draw.rect(surface, WHITE, card_rect, 3)
 
-            # 绘制冷却效果
-            if is_cooling:
-                # 绘制冷却覆盖层
-                cooldown_surface = pygame.Surface((CARD_WIDTH, CARD_HEIGHT), pygame.SRCALPHA)
-                cooldown_surface.fill((0, 0, 0, 150))  # 半透明黑色
-                surface.blit(cooldown_surface, (card_x, CARD_Y))
+                # 绘制卡片成本（右下） - 使用植物注册表的价格
+                cost_color = WHITE if sun_sufficient else RED  # 阳光不足时成本显示为红色
+                cost_text = price_font.render(f"{plant_cost}", True, cost_color)
+                surface.blit(cost_text, (card_rect.right - 55, card_rect.bottom - 25))
 
-                # 绘制冷却倒计时
-                cooldown_seconds = int(cooldown_remaining / 60) + 1  # 转换为秒，向上取整
-                cooldown_text = font_medium.render(str(cooldown_seconds), True, WHITE)
-                text_rect = cooldown_text.get_rect(center=(card_x + CARD_WIDTH // 2, CARD_Y + CARD_HEIGHT // 2))
-                surface.blit(cooldown_text, text_rect)
-        else:
-            pass
+                # 如果卡片不可用（向日葵限制），显示禁用标识
+                if not card_available:
+                    pygame.draw.line(surface, RED, card_rect.topleft, card_rect.bottomright, 3)
+                    pygame.draw.line(surface, RED, card_rect.topright, card_rect.bottomleft, 3)
+
+                # 绘制冷却效果
+                if is_cooling:
+                    # 绘制冷却覆盖层
+                    cooldown_surface = pygame.Surface((CARD_WIDTH, CARD_HEIGHT), pygame.SRCALPHA)
+                    cooldown_surface.fill((0, 0, 0, 150))  # 半透明黑色
+                    surface.blit(cooldown_surface, (card_x, CARD_Y))
+
+                    # 绘制冷却倒计时
+                    cooldown_seconds = int(cooldown_remaining / 60) + 1  # 转换为秒，向上取整
+                    cooldown_text = font_medium.render(str(cooldown_seconds), True, WHITE)
+                    text_rect = cooldown_text.get_rect(center=(card_x + CARD_WIDTH // 2, CARD_Y + CARD_HEIGHT // 2))
+                    surface.blit(cooldown_text, text_rect)
+            else:
+                pass
 
     # 8. 绘制设置按钮（右下角）
     settings_rect = pygame.Rect(SETTINGS_BUTTON_X, SETTINGS_BUTTON_Y,
@@ -409,7 +417,6 @@ def draw_ui(surface, sun, cards, shovel, selected, level_manager, wave_mode=Fals
             pygame.draw.line(surface, WHITE, settings_rect.center, (x, y), 2)
 
     return settings_rect
-
 
 def show_game_over(surface, game_over_sound_played, font_large, font_medium):
     """显示游戏结束弹窗"""
@@ -1308,12 +1315,18 @@ def draw_continue_dialog(surface, saved_game_info, level_num, font_large=None, f
 
 def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_complete,
                            scaled_images, font_small, font_medium, selected_plants=None, plant_selection_manager=None,
-                           exit_progress=0.0):
+                           exit_progress=0.0, plant_registry=None):
     """
     在战场区域绘制植物选择网格（6×5），符合原版植物大战僵尸风格
-    修复：每种植物只能选择一次，选择后变灰且不可再次点击
+    修复：每种植物只能选择一次，选择后变灰且不可再次点击 - 完全使用植物注册表
     """
     import pygame
+
+    # 导入植物注册表（如果未传入参数）
+    if plant_registry is None:
+        from plants.plant_registry import plant_registry as global_plant_registry
+        plant_registry = global_plant_registry
+
     # 获取已选中的植物类型计数
     if selected_plants is None:
         selected_plants = []
@@ -1326,6 +1339,7 @@ def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_compl
         alpha = int(255 * progress)
     else:
         alpha = 255
+
     # 计算退出动画的垂直偏移
     if exit_progress > 0:
         # 使用四次方缓入函数，让动画开始慢，然后加速向下
@@ -1403,20 +1417,6 @@ def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_compl
     pygame.draw.rect(surface, grid_border_color,
                      (start_x - 10, start_y - 10, total_width + 20, total_height + 20), 4)
 
-    # 植物价格映射
-    plant_prices = {
-        'sunflower': 50,
-        'shooter': 75,
-        'melon_pult': 300,
-        'cattail': 225,
-        'wall_nut': 50,
-        'cherry_bomb': 150,
-        'cucumber': 175,
-        'dandelion': 175,
-        'lightning_flower': 300,
-        'ice_cactus': 200,
-    }
-
     # 创建小字体用于价格显示
     price_font = pygame.font.Font(None, 24)
 
@@ -1435,7 +1435,6 @@ def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_compl
             cell_surface = pygame.Surface((cell_width, cell_height), pygame.SRCALPHA)
 
             if plant_data is not None:
-                # 修复：检查该植物是否已被选中（简化逻辑：每种植物要么选中要么未选中）
                 plant_type = plant_data['type']
                 is_selected = selected_count_dict.get(plant_type, 0) > 0
 
@@ -1462,34 +1461,14 @@ def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_compl
                 plant_type = plant_data['type']
                 is_selected = selected_count_dict.get(plant_type, 0) > 0
 
-                # 绘制植物图标
-                if scaled_images:
-                    img_key = None
-                    if plant_data['type'] == 'sunflower':
-                        img_key = 'sunflower_60'
-                    elif plant_data['type'] == 'shooter':
-                        img_key = 'pea_shooter_60'
-                    elif plant_data['type'] == 'melon_pult':
-                        img_key = 'watermelon_60'
-                    elif plant_data['type'] == 'cattail':
-                        img_key = 'cattail_60'
-                    elif plant_data['type'] == 'wall_nut':
-                        img_key = 'wall_nut_60'
-                    elif plant_data['type'] == 'cherry_bomb':
-                        img_key = 'cherry_bomb_60'
-                    elif plant_data["type"] == "cucumber":
-                        img_key = 'cucumber_60'
-                    elif plant_data["type"] == "dandelion":
-                        img_key = 'dandelion_60'
-                    elif plant_data["type"] == "lightning_flower":
-                        img_key = 'lightning_flower_60'
-                    elif plant_data["type"] == "ice_cactus":
-                        img_key = 'ice_cactus_60'
+                # 绘制植物图标 - 完全使用植物注册表
+                if scaled_images and plant_registry:
+                    img_key = plant_registry.get_plant_icon_key(plant_type)
 
                     if img_key and img_key in scaled_images:
                         img = scaled_images[img_key].copy()
 
-                        # 修复：如果植物已被选中，应用灰度效果
+                        # 如果植物已被选中，应用灰度效果
                         if is_selected:
                             # 创建灰度版本
                             img = img.copy()
@@ -1501,8 +1480,8 @@ def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_compl
                         img_y = cell_y + 4
                         surface.blit(scaled_img, (img_x, img_y))
 
-                        # 绘制植物价格（在卡槽下部）
-                        plant_price = plant_prices.get(plant_type, 0)
+                        # 绘制植物价格（在卡槽下部） - 使用植物注册表
+                        plant_price = plant_registry.get_plant_price(plant_type)
                         if plant_price > 0:
                             price_text = price_font.render(str(plant_price), True, (255, 255, 255))
                             # 计算价格文本位置（卡槽内下部居中）
@@ -1511,11 +1490,30 @@ def draw_plant_select_grid(surface, plant_grid, animation_timer, animation_compl
 
                             # 直接绘制价格文本，无背景
                             surface.blit(price_text, (price_x, price_y))
-
                     else:
-                        pass
+                        # 如果找不到图标，绘制占位符
+                        placeholder_rect = pygame.Rect(cell_x + 8, cell_y + 4, cell_width - 16, cell_height - 30)
 
-                # 修复：只有未选中的植物才可以点击，并添加视觉提示
+                        # 使用植物注册表获取颜色，如果没有则使用默认颜色
+                        plant_color = plant_registry.get_plant_color(plant_type) if plant_registry else (150, 150, 150)
+
+                        if is_selected:
+                            # 选中状态下的颜色变暗
+                            plant_color = tuple(c // 2 for c in plant_color)
+
+                        pygame.draw.rect(surface, plant_color, placeholder_rect)
+                        pygame.draw.rect(surface, WHITE, placeholder_rect, 1)
+
+                        # 绘制植物名称首字符作为占位符
+                        plant_name = plant_registry.get_plant_display_name(plant_type) if plant_registry else plant_type
+                        if plant_name:
+                            first_char = plant_name[0]
+                            char_text = font_medium.render(first_char, True, WHITE)
+                            char_x = placeholder_rect.centerx - char_text.get_width() // 2
+                            char_y = placeholder_rect.centery - char_text.get_height() // 2
+                            surface.blit(char_text, (char_x, char_y))
+
+                # 只有未选中的植物才可以点击，并添加视觉提示
                 if not is_selected:
                     # 添加点击高亮效果（表示可点击）
                     hover_surface = pygame.Surface((cell_width, cell_height), pygame.SRCALPHA)
@@ -1912,7 +1910,7 @@ def draw_codex_detail_page(surface, detail_type, selected_index, font_large, fon
     绘制详细图鉴页面（修复版本 - 支持中文按字符数换行）
 
     Args:
-        surface: 绘制表面
+        surface: 绘制表面植物选择
         detail_type: "plants" 或 "zombies"
         selected_index: 当前选中的项目索引
         font_large/medium/small: 字体
@@ -2201,51 +2199,176 @@ def get_plants_codex_data():
                 'color': (100, 200, 255),
                 'description': '冰系攻击植物，可以冻缓僵尸移动速度。攻击附带凝速效果。'
             },
+            {
+                'name': '阳光菇',
+                'icon_key': 'sun_shroom_60',
+                'large_icon_key': 'sun_shroom_img',
+                'color': (100, 200, 255),
+                'description': '每6秒产生25阳光，暗夜关卡的首选'
+            },
+            {
+                'name': '月亮花',
+                'icon_key': 'moon_flower_60',
+                'large_icon_key': 'moon_flower_img',
+                'color': (100, 200, 255),
+                'description': '发射小月亮子弹。场上每增加一个月亮花，所有植物的攻击速度提高10%，最高提高50%'
+            },
+            {
+                'name': '地刺',
+                'icon_key': 'luker_60',
+                'large_icon_key': 'luker_img',
+                'color': (100, 200, 255),
+                'description': '无视僵尸防具，可秒杀所有正在自己身上的车子类僵尸'
+            },
+            {
+                'name': '迷幻投手',
+                'icon_key': 'psychedelic_pitcher_60',
+                'large_icon_key': 'psychedelic_pitcher_img',
+                'color': (100, 200, 255),
+                'description': '魅惑僵尸使其暂时为你作战'
+            }
+
         ]
 
 def get_zombies_codex_data():
-        """获取僵尸图鉴数据"""
-        return [
-            {
-                'name': '普通僵尸',
-                'icon_key': 'zombie_60',
-                'large_icon_key': 'zombie_img',
-                'color': (150, 150, 150),
-                'description': '最基础的僵尸，移动缓慢但数量众多。生命值较低，容易被消灭。'
-            },
-            {
-                'name': '路障僵尸',
-                'icon_key': 'cone_zombie_60',
-                'large_icon_key': 'cone_zombie_img',
-                'color': (200, 150, 100),
-                'description': '头戴路障的僵尸，防御力较高。能够承受更多伤害才会被击败。'
-            },
-            {
-                'name': '铁桶僵尸',
-                'icon_key': 'bucket_zombie_60',
-                'large_icon_key': 'bucket_zombie_img',
-                'color': (120, 120, 120),
-                'description': '头戴铁桶的僵尸，拥有很高的防御力。是最难对付的普通僵尸。'
-            },
-            {
-                'name': '快速僵尸',
-                'icon_key': 'fast_zombie_60',
-                'large_icon_key': 'fast_zombie_img',
-                'color': (255, 200, 200),
-                'description': '移动速度很快的僵尸，但防御力较低。需要快速反应来应对。'
-            },
-            {
-                'name': '巨人僵尸',
-                'icon_key': 'giant_zombie_60',
-                'large_icon_key': 'giant_zombie_img',
-                'color': (100, 100, 200),
-                'description': '体型巨大的僵尸，生命值和攻击力都很高。是强大的精英敌人。'
-            },
-            {
-                'name': '装甲僵尸',
-                'icon_key': 'armored_zombie_60',
-                'large_icon_key': 'armored_zombie_img',
-                'color': (150, 100, 50),
-                'description': '身穿装甲的僵尸，具有特殊防护能力。对某些攻击有抗性。'
-            },
-        ]
+    """获取僵尸图鉴数据"""
+    return [
+        {
+            'name': '普通僵尸',
+            'icon_key': 'zombie_60',
+            'large_icon_key': 'zombie_img',
+            'color': (150, 150, 150),
+            'description': '最基础的僵尸，移动缓慢但数量众多。生命值较低，容易被消灭。'
+        },
+
+        {
+            'name': '巨人僵尸',
+            'icon_key': 'giant_zombie_60',
+            'large_icon_key': 'giant_zombie_img',
+            'color': (100, 100, 200),
+            'description': '体型巨大的僵尸，生命值和攻击力都很高。是强大的精英敌人。'
+        },
+        {
+            'name': '铁门僵尸',
+            'icon_key': 'armored_zombie_60',
+            'large_icon_key': 'armored_zombie_img',
+            'color': (150, 100, 50),
+            'description': '身穿装甲的僵尸，具有特殊防护能力。对某些攻击有抗性。'
+        },
+        {
+            'name': '爆炸僵尸',
+            'icon_key': 'exploding_zombie_60',
+            'large_icon_key': 'exploding_zombie_img',
+            'color': (255, 80, 80),
+            'description': '危险的红色僵尸，死亡时会发生剧烈爆炸。爆炸会对3x3范围内的所有植物造成巨大伤害'
+        },
+        {
+            'name': '冰车僵尸',
+            'icon_key': 'ice_car_zombie_60',
+            'large_icon_key': 'ice_car_zombie_img',
+            'color': (255, 80, 80),
+            'description': '碾压一切非地刺类植物，身后留下不可种植植物的冰道'
+        },
+    ]
+
+
+def draw_purchase_confirm_dialog(surface, item, current_coins, font_large=None, font_medium=None, font_small=None):
+    """绘制购买确认对话框"""
+    if not item:
+        return None, None
+
+    # 半透明背景
+    overlay = pygame.Surface((BASE_WIDTH, BASE_HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    surface.blit(overlay, (0, 0))
+
+    # 对话框尺寸和位置
+    dialog_width = 450
+    dialog_height = 300
+    dialog = pygame.Rect(
+        (BASE_WIDTH - dialog_width) // 2,
+        (BASE_HEIGHT - dialog_height) // 2,
+        dialog_width, dialog_height
+    )
+
+    # 绘制对话框背景
+    pygame.draw.rect(surface, (60, 60, 60), dialog)
+    pygame.draw.rect(surface, (100, 150, 255), dialog, 4)  # 蓝色边框
+
+    # 标题
+    title = font_large.render("确认购买", True, WHITE)
+    surface.blit(title, title.get_rect(centerx=dialog.centerx, top=dialog.top + 20))
+
+    # 商品信息
+    item_name = item.get('name', '未知商品')
+    item_price = item.get('price', 0)
+    item_desc = item.get('description', '')
+
+    # 商品名称
+    name_text = font_medium.render(f"商品: {item_name}", True, WHITE)
+    surface.blit(name_text, name_text.get_rect(centerx=dialog.centerx, top=dialog.top + 70))
+
+    # 商品价格
+    price_color = WHITE if current_coins >= item_price else RED
+    price_text = font_medium.render(f"价格: {item_price} 金币", True, price_color)
+    surface.blit(price_text, price_text.get_rect(centerx=dialog.centerx, top=dialog.top + 105))
+
+    # 当前金币
+    coins_text = font_medium.render(f"当前: {current_coins} 金币", True, YELLOW)
+    surface.blit(coins_text, coins_text.get_rect(centerx=dialog.centerx, top=dialog.top + 140))
+
+    # 商品描述（使用中文换行函数）
+    if item_desc:
+        desc_lines = wrap_text_chinese(item_desc, max_chars_per_line=20)
+        desc_y = dialog.top + 175
+        for i, line in enumerate(desc_lines[:2]):  # 最多显示2行
+            desc_text = font_small.render(line, True, (200, 200, 200))
+            surface.blit(desc_text, desc_text.get_rect(centerx=dialog.centerx, top=desc_y))
+            desc_y += 25
+
+    # 检查金币是否足够
+    can_afford = current_coins >= item_price
+
+    # 按钮
+    button_y = dialog.bottom - 60
+    button_width = 120
+    button_height = 40
+    button_spacing = 40
+
+    # 确认按钮（金币足够时才可点击）
+    confirm_btn = pygame.Rect(
+        dialog.centerx - button_width - button_spacing // 2,
+        button_y,
+        button_width,
+        button_height
+    )
+
+    if can_afford:
+        pygame.draw.rect(surface, (0, 150, 0), confirm_btn)
+        confirm_text_color = WHITE
+    else:
+        pygame.draw.rect(surface, (100, 100, 100), confirm_btn)
+        confirm_text_color = (150, 150, 150)
+
+    pygame.draw.rect(surface, WHITE, confirm_btn, 2)
+    confirm_text = font_medium.render("确认", True, confirm_text_color)
+    surface.blit(confirm_text, confirm_text.get_rect(center=confirm_btn.center))
+
+    # 取消按钮
+    cancel_btn = pygame.Rect(
+        dialog.centerx + button_spacing // 2,
+        button_y,
+        button_width,
+        button_height
+    )
+
+    pygame.draw.rect(surface, (150, 0, 0), cancel_btn)
+    pygame.draw.rect(surface, WHITE, cancel_btn, 2)
+    cancel_text = font_medium.render("取消", True, WHITE)
+    surface.blit(cancel_text, cancel_text.get_rect(center=cancel_btn.center))
+
+    # 如果金币不足，确认按钮不可点击
+    if not can_afford:
+        confirm_btn = None
+
+    return confirm_btn, cancel_btn

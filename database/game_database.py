@@ -4,7 +4,7 @@ import pygame
 
 
 class GameDatabase:
-    def __init__(self, filename="database/game_progress.json"):
+    def __init__(self, filename="save/game_progress.json"):
         self.filename = filename
         self.data = self.load_data()
 
@@ -123,7 +123,7 @@ class GameDatabase:
         self.save_data()
 
     def save_game_progress(self, game_state, music_manager=None, game_manager=None):
-        """保存指定关卡的游戏进度，修复樱桃炸弹等爆炸植物的保存问题"""
+        """保存指定关卡的游戏进度，增加地刺和魅惑系统支持"""
         try:
             # 获取当前关卡编号
             current_level = game_state["level_manager"].current_level
@@ -181,6 +181,13 @@ class GameDatabase:
                     }
                     dandelion_seeds_data.append(seed_data)
 
+            # 保存传送带状态（第21关特有）
+            conveyor_belt_data = {}
+            if game_manager and hasattr(game_manager, 'conveyor_belt_manager') and game_manager.conveyor_belt_manager:
+                conveyor_belt_data = game_manager.conveyor_belt_manager.get_save_data()
+            seed_rain_data = {}
+            if game_manager and hasattr(game_manager, 'seed_rain_manager') and game_manager.seed_rain_manager:
+                seed_rain_data = game_manager.seed_rain_manager.get_save_data()
             # 保存黄瓜效果状态
             cucumber_effects_data = {}
             if "zombie_stun_timers" in game_state:
@@ -204,6 +211,29 @@ class GameDatabase:
                     }
                     frozen_zombies.append(frozen_zombie_data)
             freeze_effects_data["frozen_zombies"] = frozen_zombies
+
+            # 新增：保存魅惑系统数据
+            charm_effects_data = {}
+            if "charm_effects" in game_state:
+                charm_effects_list = []
+                for zombie_id, effect_data in game_state["charm_effects"].items():
+                    # 找到对应的僵尸在列表中的索引
+                    zombie_index = -1
+                    for i, zombie in enumerate(game_state["zombies"]):
+                        if id(zombie) == zombie_id:
+                            zombie_index = i
+                            break
+
+                    if zombie_index >= 0:
+                        charm_data = {
+                            "zombie_index": zombie_index,  # 使用索引而不是id
+                            "duration": effect_data.get('duration', 300),
+                            "remaining": effect_data.get('remaining', 0),
+                            "original_speed": effect_data.get('original_speed', -0.01)
+                        }
+                        charm_effects_list.append(charm_data)
+
+                charm_effects_data["charm_effects_list"] = charm_effects_list
 
             # 关键修复：樱桃炸弹等爆炸植物的特殊处理
             def should_save_plant(plant):
@@ -236,7 +266,7 @@ class GameDatabase:
 
                 return True  # 其他植物正常保存
 
-            # 修复后的植物保存逻辑
+            # 修复后的植物保存逻辑 - 添加地刺和迷幻投手支持
             plants_data = []
             for plant in game_state["plants"]:
                 if should_save_plant(plant):
@@ -245,21 +275,63 @@ class GameDatabase:
                         "col": plant.col,
                         "plant_type": plant.plant_type,
                         "health": plant.health,
-                        # 射击类植物参数
-                        "shoot_timer": getattr(plant, 'shoot_timer', 0),
-                        "current_shoot_delay": getattr(plant, 'current_shoot_delay',
-                                                       plant.base_shoot_delay if hasattr(plant,
-                                                                                         'base_shoot_delay') else 300),
-                        "had_target_last_frame": getattr(plant, 'had_target_last_frame', False),
-                        # 闪电花特殊参数
-                        "lightning_timer": getattr(plant, 'lightning_timer', 0),
-                        "show_lightning": getattr(plant, 'show_lightning', False),
-                        "lightning_effects": getattr(plant, 'lightning_effects', []),
-                        # 向日葵参数
-                        "sun_timer": getattr(plant, 'sun_timer', 0) if plant.plant_type == "sunflower" else 0,
-                        # 新增：爆炸植物的状态参数
-                        "explosion_state": self._get_plant_explosion_state(plant)
+                        "max_health": plant.max_health,
                     }
+
+                    # 射击类植物参数 - 现在包括地刺和迷幻投手
+                    if plant.plant_type in ["shooter", "melon_pult", "cattail", "dandelion", "lightning_flower",
+                                            "ice_cactus", "moon_flower", "luker", "psychedelic_pitcher"]:
+                        plant_data.update({
+                            "shoot_timer": getattr(plant, 'shoot_timer', 0),
+                            "current_shoot_delay": getattr(plant, 'current_shoot_delay',
+                                                           plant.base_shoot_delay if hasattr(plant,
+                                                                                             'base_shoot_delay') else 300),
+                            "had_target_last_frame": getattr(plant, 'had_target_last_frame', False),
+                        })
+
+                    # 闪电花特殊参数
+                    if plant.plant_type == "lightning_flower":
+                        plant_data.update({
+                            "lightning_timer": getattr(plant, 'lightning_timer', 0),
+                            "show_lightning": getattr(plant, 'show_lightning', False),
+                            "lightning_effects": getattr(plant, 'lightning_effects', []),
+                        })
+
+                    # 向日葵参数
+                    if plant.plant_type == "sunflower":
+                        plant_data["sun_timer"] = getattr(plant, 'sun_timer', 0)
+
+                    # 月亮花特殊参数
+                    if plant.plant_type == "moon_flower":
+                        plant_data.update({
+                            "moon_flower_glow_timer": getattr(plant, 'glow_effect_timer', 0),
+                            "moon_flower_glow_alpha": getattr(plant, 'glow_alpha', 100),
+                            "moon_flower_glow_increasing": getattr(plant, 'glow_increasing', True),
+                            "moon_flower_count": getattr(plant, 'moon_flower_count', 0),
+                        })
+
+                    # 新增：地刺特殊参数
+                    if plant.plant_type == "luker":
+                        plant_data.update({
+                            "luker_damage": getattr(plant, 'damage', 20),
+                            "luker_can_ignore_armor": getattr(plant, 'can_ignore_armor', True),
+                            "luker_can_instant_kill_vehicles": getattr(plant, 'can_instant_kill_vehicles', True),
+                            "luker_base_shoot_delay": getattr(plant, 'base_shoot_delay', 80),
+                        })
+
+                    # 新增：迷幻投手特殊参数
+                    if plant.plant_type == "psychedelic_pitcher":
+                        plant_data.update({
+                            "shoot_interval": getattr(plant, 'shoot_interval', 240),
+                            "animation_timer": getattr(plant, 'animation_timer', 0),
+                            "is_throwing": getattr(plant, 'is_throwing', False),
+                            "throw_animation_duration": getattr(plant, 'throw_animation_duration', 50),
+                        })
+
+                    # 爆炸植物的状态参数
+                    if plant.plant_type in ["cherry_bomb", "cucumber"]:
+                        plant_data["explosion_state"] = self._get_plant_explosion_state(plant)
+
                     plants_data.append(plant_data)
 
             # 保存爆炸效果数据（用于粒子系统等视觉效果的恢复）
@@ -300,6 +372,28 @@ class GameDatabase:
 
                     }
                     portal_manager_data["portals"].append(portal_data)
+
+            ice_trail_manager_data = {}
+            if "ice_trail_manager" in game_state and game_state["ice_trail_manager"]:
+                ice_trail_mgr = game_state["ice_trail_manager"]
+                ice_trails_data = []
+
+                for (row, col), trail in ice_trail_mgr.ice_trails.items():
+                    trail_data = {
+                        "row": row,
+                        "col": col,
+                        "remaining_time": trail.remaining_time,
+                        "duration": trail.duration,
+                        "alpha": trail.alpha,
+                        "sparkle_timer": trail.sparkle_timer,
+                        # 不保存sparkles，因为它们会重新生成
+                    }
+                    ice_trails_data.append(trail_data)
+
+                ice_trail_manager_data = {
+                    "ice_trails": ice_trails_data
+                }
+
             # 创建保存数据
             saved_game = {
                 "sun": game_state["sun"],
@@ -333,17 +427,21 @@ class GameDatabase:
 
                 # 蒲公英种子状态
                 "dandelion_seeds": dandelion_seeds_data,
-
+                # 传送带状态
+                "conveyor_belt_data": conveyor_belt_data,
                 # 黄瓜效果状态
                 "cucumber_effects": cucumber_effects_data,
 
                 # 冰冻效果状态
                 "freeze_effects": freeze_effects_data,
 
+                # 新增：魅惑效果状态
+                "charm_effects": charm_effects_data,
+
                 # 修复后的植物信息
                 "plants": plants_data,
 
-                # 僵尸信息
+                # 僵尸信息（添加魅惑相关状态）
                 "zombies": [
                     {
                         "row": zombie.row,
@@ -351,8 +449,8 @@ class GameDatabase:
                         "health": zombie.health,
                         "max_health": zombie.max_health,
                         "has_armor": zombie.has_armor,
-                        "max_armor_health": zombie.max_armor_health,
-                        "armor_health": zombie.armor_health,
+                        "max_armor_health": getattr(zombie, 'max_armor_health', 0),
+                        "armor_health": getattr(zombie, 'armor_health', 0),
                         "is_fast": zombie.is_fast,
                         "is_attacking": zombie.is_attacking,
                         "zombie_type": getattr(zombie, 'zombie_type', 'normal'),
@@ -366,16 +464,39 @@ class GameDatabase:
                         # 冰冻状态保存
                         "is_frozen": getattr(zombie, 'is_frozen', False),
                         "freeze_start_time": getattr(zombie, 'freeze_start_time', 0),
-                        "original_speed": getattr(zombie, 'original_speed', zombie.base_speed),
+                        "original_speed": getattr(zombie, 'original_speed',
+                                                  zombie.base_speed if hasattr(zombie, 'base_speed') else 0.01),
                         # 眩晕和喷射状态
                         "is_stunned": getattr(zombie, 'is_stunned', False),
                         "is_spraying": getattr(zombie, 'is_spraying', False),
-                        "stun_visual_timer": getattr(zombie, 'stun_visual_timer', 0)
+                        "stun_visual_timer": getattr(zombie, 'stun_visual_timer', 0),
+                        # 爆炸僵尸特有状态
+                        "explosion_damage": getattr(zombie, 'explosion_damage', 1500),
+                        "explosion_range": getattr(zombie, 'explosion_range', 3),
+                        "has_exploded": getattr(zombie, 'has_exploded', False),
+                        "explosion_triggered": getattr(zombie, 'explosion_triggered', False),
+                        "explosion_timer": getattr(zombie, 'explosion_timer', 0),
+                        "explosion_delay": getattr(zombie, 'explosion_delay', 30),
+                        "death_by_explosion": getattr(zombie, 'death_by_explosion', False),
+                        # 冰车僵尸特有状态
+                        "ice_trail_timer": getattr(zombie, 'ice_trail_timer', 0),
+                        "ice_trail_interval": getattr(zombie, 'ice_trail_interval', 15),
+                        "last_trail_col": getattr(zombie, 'last_trail_col', None),
+                        "crushed_plants": list(getattr(zombie, 'crushed_plants', set())),  # set转list保存
+                        "is_ice_immune": getattr(zombie, 'is_ice_immune', False),
+                        "crush_plants": getattr(zombie, 'crush_plants', False),
+                        "explodes_on_spike": getattr(zombie, 'explodes_on_spike', False),
+                        # 新增：魅惑状态
+                        "is_charmed": getattr(zombie, 'is_charmed', False),
+                        "team": getattr(zombie, 'team', 'zombie'),
+                        "pending_charm": getattr(zombie, 'pending_charm', 0),
                     }
                     for zombie in game_state["zombies"]
                 ],
+                # 冰道系统状态
+                "ice_trail_manager_data": ice_trail_manager_data,
 
-                # 子弹信息
+                # 子弹信息 - 新增月亮子弹和迷幻子弹支持
                 "bullets": [
                     {
                         "row": bullet.row,
@@ -407,7 +528,24 @@ class GameDatabase:
                         # 寒冰子弹特殊属性
                         "freeze_power": getattr(bullet, "freeze_power", 5000) if bullet.bullet_type == "ice" else 0,
                         "freeze_applied_zombies": len(
-                            getattr(bullet, "freeze_applied_zombies", set())) if bullet.bullet_type == "ice" else 0
+                            getattr(bullet, "freeze_applied_zombies", set())) if bullet.bullet_type == "ice" else 0,
+                        # 月亮子弹特殊属性
+                        "moon_rotation": getattr(bullet, "rotation", 0) if bullet.bullet_type == "moon" else 0,
+                        "moon_glow_timer": getattr(bullet, "glow_timer", 0) if bullet.bullet_type == "moon" else 0,
+                        "moon_initial_col": getattr(bullet, "initial_col",
+                                                    bullet.col) if bullet.bullet_type == "moon" else bullet.col,
+                        "moon_wave_amplitude": getattr(bullet, "wave_amplitude",
+                                                       0.1) if bullet.bullet_type == "moon" else 0.1,
+                        "moon_wave_frequency": getattr(bullet, "wave_frequency",
+                                                       0.1) if bullet.bullet_type == "moon" else 0.1,
+                        # 新增：迷幻子弹特殊属性
+                        "psychedelic_dmg": getattr(bullet, "dmg", 20) if bullet.bullet_type == "psychedelic" else 0,
+                        "psychedelic_charm_duration": getattr(bullet, "charm_duration",
+                                                              300) if bullet.bullet_type == "psychedelic" else 0,
+                        "psychedelic_max_height": getattr(bullet, "max_height",
+                                                          2) if bullet.bullet_type == "psychedelic" else 0,
+                        "psychedelic_flight_speed": getattr(bullet, "flight_speed",
+                                                            0.03) if bullet.bullet_type == "psychedelic" else 0,
                     }
                     for bullet in game_state.get("bullets", [])
                 ],

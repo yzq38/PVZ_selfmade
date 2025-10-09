@@ -7,7 +7,7 @@ from .game_logic import *
 from rsc_mng.audio_manager import play_sound_with_music_pause, set_sounds_volume
 from database import *
 
-
+from ui import ConveyorBeltManager
 
 
 class EventHandler:
@@ -15,7 +15,7 @@ class EventHandler:
 
     def __init__(self, game_manager):
         self.game_manager = game_manager
-        # 添加滑块拖拽状态跟踪
+        self.conveyor_belt_manager = None
         self.dragging_slider = False
         self.slider_bg_rect = None
 
@@ -368,13 +368,13 @@ class EventHandler:
                     return  # 找到悬浮按钮后返回
 
     def _handle_playing_hover(self, pos):
-        """处理游戏界面悬浮"""
+        """处理游戏界面悬停"""
         if self.game_manager.state_manager.should_pause_game_logic():
             return
 
         x, y = pos
 
-        # 检查设置按钮悬浮
+        # 检查设置按钮悬停
         settings_rect = pygame.Rect(SETTINGS_BUTTON_X, SETTINGS_BUTTON_Y,
                                     SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
         if settings_rect.collidepoint(x, y):
@@ -382,7 +382,30 @@ class EventHandler:
             self.game_manager.state_manager.clear_plant_preview()
             return
 
-        # 检查铲子悬浮
+        # 关键修复：锤子跟随鼠标在任何模式下都要处理（提前到模式检查之前）
+        selected = self.game_manager.game["selected"]
+        if selected == "hammer":
+            self.game_manager.state_manager.set_hammer_cursor_pos(x, y)
+            # 锤子模式下清除植物预览，但不直接返回，让后续逻辑继续处理其他悬停
+        # 处理种子雨模式的植物预览
+        if (hasattr(self.game_manager, 'seed_rain_manager') and
+                    self.game_manager.seed_rain_manager and
+                    self.game_manager.seed_rain_manager.enabled):
+            self._handle_seed_rain_plant_preview(x, y)
+            return
+        # 优先处理传送带悬停（如果是传送带模式）
+        if (hasattr(self.game_manager, 'conveyor_belt_manager') and
+                self.game_manager.conveyor_belt_manager is not None and
+                self.game_manager.game["level_manager"].current_level != 18):
+            # 传送带模式：处理传送带相关的悬停
+            self.game_manager.conveyor_belt_manager.handle_hover(pos)
+
+            # 修改：添加传送带模式下的植物预览处理
+            self._handle_conveyor_belt_plant_preview(x, y)
+            return
+
+        # 非传送带模式：处理传统UI悬停
+        # 检查铲子悬停
         shovel_rect = pygame.Rect(self.game_manager.shovel["x"], self.game_manager.shovel["y"],
                                   self.game_manager.shovel["width"], self.game_manager.shovel["height"])
         if shovel_rect.collidepoint(x, y):
@@ -390,7 +413,7 @@ class EventHandler:
             self.game_manager.state_manager.clear_plant_preview()
             return
 
-        # 新增：检查锤子悬浮
+        # 检查锤子悬停
         if (hasattr(self.game_manager, 'shop_manager') and
                 self.game_manager.shop_manager.has_hammer()):
             hammer_rect = pygame.Rect(HAMMER_X, HAMMER_Y, HAMMER_WIDTH, HAMMER_HEIGHT)
@@ -399,32 +422,20 @@ class EventHandler:
                 self.game_manager.state_manager.clear_plant_preview()
                 return
 
-        # 检查卡片悬浮
+        # 检查卡片悬停
         cards = self.game_manager.get_available_cards_for_current_state()
         for i, card in enumerate(cards):
             card_x = CARD_START_X + i * CARD_WIDTH
             card_rect = pygame.Rect(card_x, CARD_Y, CARD_WIDTH, CARD_HEIGHT)
             if card_rect.collidepoint(x, y):
-                # 检查卡片是否可用
                 if self._is_card_hoverable(card):
                     self.game_manager.state_manager.set_hover_button(f"card_{i}", "game_ui")
                 self.game_manager.state_manager.clear_plant_preview()
                 return
 
-        # 新增：处理锤子鼠标跟随
-        selected = self.game_manager.game["selected"]
-        if selected == "hammer":
-            # 更新锤子位置到鼠标位置
-            # 这里需要在state_manager或者game对象中存储锤子的鼠标跟随位置
-            self.game_manager.state_manager.set_hammer_cursor_pos(x, y)
-            return
-
-        # 处理植物种植预览 - 使用新的预览系统
+        # 处理植物种植预览（非传送带模式）
         if not self.game_manager.plant_selection_manager.show_plant_select:
-            # 导入utils模块中的预览函数
             from utils import update_plant_preview_on_mouse_move
-
-            # 调用统一的预览更新函数
             update_plant_preview_on_mouse_move(
                 self.game_manager.state_manager,
                 self.game_manager.game,
@@ -433,9 +444,103 @@ class EventHandler:
                 self.game_manager.game["selected"]
             )
 
-        # 检查植物选择界面悬浮
+        # 检查植物选择界面悬停
         if self.game_manager.plant_selection_manager.show_plant_select:
             self._handle_plant_select_hover(pos)
+
+    def _handle_conveyor_belt_plant_preview(self, x, y):
+        """处理传送带模式下的植物预览 - 修复状态同步和格子占用检查"""
+        from utils import pixel_to_grid, can_place_plant_at_position, should_show_plant_preview
+
+        # 关键修复：在清除预览之前，先检查传送带状态
+        conveyor_selected = None
+        if (hasattr(self.game_manager, 'conveyor_belt_manager') and
+                self.game_manager.conveyor_belt_manager is not None):
+            selected_card = self.game_manager.conveyor_belt_manager.get_selected_card()
+            if selected_card:
+                conveyor_selected = selected_card.card_type
+
+        # 如果传送带有选中但游戏状态没有，立即同步
+        if conveyor_selected and self.game_manager.game["selected"] != conveyor_selected:
+            self.game_manager.game["selected"] = conveyor_selected
+        # 如果传送带没有选中但游戏状态有非工具选中，清除游戏状态
+        elif not conveyor_selected and self.game_manager.game["selected"] not in [None, "shovel", "hammer"]:
+            self.game_manager.game["selected"] = None
+
+        # 现在检查最终的选中状态
+        selected_plant = conveyor_selected or self.game_manager.game["selected"]
+
+        # 如果没有选中植物或选中的是工具，清除预览并返回
+        if not selected_plant or selected_plant in ["shovel", "hammer"]:
+            self.game_manager.state_manager.clear_plant_preview()
+            return
+
+        # 获取鼠标位置对应的网格坐标
+        row, col = pixel_to_grid(x, y)
+        if row is None or col is None:
+            self.game_manager.state_manager.clear_plant_preview()
+            return
+
+        # 关键修复：使用should_show_plant_preview检查是否应该显示预览
+        should_show, can_place = should_show_plant_preview(
+            self.game_manager.game, selected_plant, row, col
+        )
+
+        if not should_show:
+            # 如果不应该显示预览（比如格子已有植物），清除预览
+            self.game_manager.state_manager.clear_plant_preview()
+            return
+
+        # 进一步检查是否可以在该位置种植（考虑传送门等因素）
+        can_place = can_place_plant_at_position(
+            self.game_manager.game,
+            selected_plant,
+            row, col,
+            self.game_manager.game["level_manager"]
+        )
+
+        # 传送带模式下，不检查阳光和卡片冷却，只要选中了就显示预览
+        # 设置预览状态
+        self.game_manager.state_manager.set_plant_preview(
+            selected_plant, row, col, can_place
+        )
+
+    def _handle_seed_rain_plant_preview(self, x, y):
+        """处理种子雨模式下的植物预览"""
+        from utils import pixel_to_grid, should_show_plant_preview
+
+        selected_plant = self.game_manager.game["selected"]
+
+        # 如果没有选中植物或选中的是工具，清除预览
+        if not selected_plant or selected_plant in ["shovel", "hammer"]:
+            self.game_manager.state_manager.clear_plant_preview()
+            return
+
+        # 获取鼠标位置对应的网格坐标
+        row, col = pixel_to_grid(x, y)
+        if row is None or col is None:
+            self.game_manager.state_manager.clear_plant_preview()
+            return
+
+        # 检查是否应该显示预览
+        should_show, can_place = should_show_plant_preview(
+            self.game_manager.game, selected_plant, row, col
+        )
+
+        if should_show:
+            # 设置预览状态
+            self.game_manager.state_manager.set_plant_preview(
+                selected_plant, row, col, can_place
+            )
+        else:
+            self.game_manager.state_manager.clear_plant_preview()
+
+    def _is_battlefield_click(self, x, y):
+        """检查是否点击了战场区域"""
+        adj_x = x - BATTLEFIELD_LEFT
+        adj_y = y - BATTLEFIELD_TOP
+        return (0 <= adj_x < total_battlefield_width and
+                0 <= adj_y < total_battlefield_height)
 
     def _handle_plant_preview(self, x, y, cards):
         """处理植物种植预览"""
@@ -734,13 +839,17 @@ class EventHandler:
 
         return True
 
-
     def _handle_shop_click(self, x, y):
         """处理商店界面点击"""
         if self.game_manager.animation_manager.level_select_exit_animation:
             return
 
         if not self.game_manager.animation_manager.level_select_animation_complete:
+            return
+
+        # 如果正在显示购买确认对话框，优先处理
+        if self.game_manager.state_manager.show_purchase_confirm:
+            self._handle_purchase_confirm_click(x, y)
             return
 
         # 获取商店界面的所有可点击元素
@@ -773,13 +882,53 @@ class EventHandler:
             self.game_manager.shop_manager.next_page()
             return
 
-        # 处理商品点击
+        # 处理购买按钮点击（修改：只检测购买按钮区域）
         for item_rect, item, item_index in item_rects:
-            if item_rect.collidepoint(x, y):
-                # 只有未购买的商品才能点击购买
+            # 计算购买按钮的具体位置
+            buy_btn_rect = pygame.Rect(
+                item_rect.x + 20,
+                item_rect.y + 115,
+                item_rect.width - 40,
+                20
+            )
+
+            if buy_btn_rect.collidepoint(x, y):
+                # 只有未购买的商品才能点击购买按钮
                 if not self.game_manager.shop_manager.is_purchased(item['id']):
-                    self._handle_shop_item_purchase(item, item_index)
+                    # 显示购买确认对话框
+                    self.game_manager.state_manager.show_purchase_confirmation(item)
                 break
+
+    def _handle_purchase_confirm_click(self, x, y):
+        """处理购买确认对话框点击"""
+        from ui import draw_purchase_confirm_dialog
+
+        # 获取待购买的物品
+        item = self.game_manager.state_manager.get_pending_purchase_item()
+        if not item:
+            self.game_manager.state_manager.hide_purchase_confirmation()
+            return
+
+        # 临时绘制对话框以获取按钮位置
+        temp_surface = pygame.Surface((BASE_WIDTH, BASE_HEIGHT), pygame.SRCALPHA)
+        confirm_btn, cancel_btn = draw_purchase_confirm_dialog(
+            temp_surface,
+            item,
+            self.game_manager.coins,
+            self.game_manager.font_large,
+            self.game_manager.font_medium,
+            self.game_manager.font_small
+        )
+
+        if confirm_btn and confirm_btn.collidepoint(x, y):
+            # 点击确认购买
+            self._handle_shop_item_purchase(item, 0)
+            self.game_manager.state_manager.hide_purchase_confirmation()
+        elif cancel_btn and cancel_btn.collidepoint(x, y):
+            # 点击取消
+            self.game_manager.state_manager.hide_purchase_confirmation()
+
+        return True
 
     def _handle_shop_item_purchase(self, item, item_index):
         """处理商品购买 - 添加金币检查"""
@@ -1018,6 +1167,7 @@ class EventHandler:
         else:
             self._handle_gameplay_click(x, y)
 
+
     def _handle_plant_select_click(self, x, y):
         """处理植物选择界面点击（已修复开始战斗按钮）"""
         # 在动画播放期间禁用所有点击
@@ -1076,7 +1226,7 @@ class EventHandler:
             # 使用新的重置方法，确保传送门系统被正确重新初始化
             self.game_manager.reset_game_with_initialization(current_game_level)
 
-            # 重置游戏结束状态
+            # 重置游戏结束状态playing_hover
             self.game_manager.game["game_over"] = False
             self.game_manager.game["game_over_sound_played"] = False
 
@@ -1087,54 +1237,155 @@ class EventHandler:
             self.game_manager.game = self.game_manager.state_manager.reset_game()
 
     def _handle_in_game_click(self, x, y):
-        """处理游戏内点击（种植物、铲子等）"""
-        # 新增：优先检查小推车点击
-        if self.game_manager.cart_manager.handle_cart_click(x, y):
-            return  # 点击了小推车，直接返回
+        """处理游戏内点击(种植物、铲子等) - 修复版本：确保工具优先"""
 
-        # 检查设置按钮
+        # **优先级1：检查小推车点击**
+        if self.game_manager.cart_manager.handle_cart_click(x, y):
+            return
+
+        # **优先级2：检查设置按钮**
         settings_rect = pygame.Rect(SETTINGS_BUTTON_X, SETTINGS_BUTTON_Y,
                                     SETTINGS_BUTTON_WIDTH, SETTINGS_BUTTON_HEIGHT)
         if settings_rect.collidepoint(x, y):
             self.game_manager.state_manager.toggle_settings()
             return
 
-        # 获取可用卡片
-        cards = self.game_manager.get_available_cards_for_current_state()
-
+        # **优先级3：工具点击（铲子和锤子）- 必须在种子雨之前处理**
         # 检测是否点击铲子
         shovel_rect = pygame.Rect(self.game_manager.shovel["x"], self.game_manager.shovel["y"],
                                   self.game_manager.shovel["width"], self.game_manager.shovel["height"])
         if shovel_rect.collidepoint(x, y):
-            # 如果之前选中的是锤子，清除锤子跟随状态
             if self.game_manager.game["selected"] == "hammer":
                 self.game_manager.state_manager.clear_hammer_cursor()
-
             self.game_manager.game["selected"] = "shovel"
             return
 
         # 检测是否点击锤子
         if (hasattr(self.game_manager, 'shop_manager') and
                 self.game_manager.shop_manager.has_hammer()):
-
             hammer_rect = pygame.Rect(HAMMER_X, HAMMER_Y, HAMMER_WIDTH, HAMMER_HEIGHT)
             if hammer_rect.collidepoint(x, y):
-                # 检查锤子是否在冷却中
                 hammer_cooldown = self.game_manager.game.get("hammer_cooldown", 0)
                 if hammer_cooldown <= 0:
-                    # 清除之前可能存在的锤子跟随状态
                     self.game_manager.state_manager.clear_hammer_cursor()
-
                     self.game_manager.game["selected"] = "hammer"
-
-                    # 启用锤子跟随鼠标（在下次鼠标移动时会设置位置）
                     return
                 else:
-                    # 锤子在冷却中，播放提示音或显示提示
-                    print(f"锤子冷却中，还需要 {int(hammer_cooldown / 60) + 1} 秒")
+                    print(f"锤子冷却中,还需要 {int(hammer_cooldown / 60) + 1} 秒")
                     return
 
-        # 检测是否点击卡槽（使用动态卡片列表）
+        # **优先级4：处理已选中工具的使用（战场点击）**
+        if self._is_battlefield_click(x, y):
+            selected = self.game_manager.game["selected"]
+
+            # 如果选中了铲子或锤子，直接处理
+            if selected in ["shovel", "hammer"]:
+                from .game_logic import handle_plant_placement
+                cards = self.game_manager.get_available_cards_for_current_state()
+                handle_plant_placement(
+                    self.game_manager.game, cards, x, y,
+                    self.game_manager.game["level_manager"],
+                    self.game_manager.level_settings,
+                    self.game_manager.sounds,
+                    self.game_manager.state_manager
+                )
+                return
+
+        # **优先级5：种子雨卡牌点击**
+        if (hasattr(self.game_manager, 'seed_rain_manager') and
+                self.game_manager.seed_rain_manager and
+                self.game_manager.seed_rain_manager.enabled):
+
+            #  修复：检查是否点击了卡牌区域
+            clicked_card = False
+            for card in self.game_manager.seed_rain_manager.cards:
+                if card.state in ["falling", "stopped"] and card.check_click((x, y)):
+                    clicked_card = True
+                    # 如果点击的是未选中的卡牌，选中它
+                    if not card.selected:
+                        selected_plant = self.game_manager.seed_rain_manager.handle_left_click(
+                            (x, y),
+                            self.game_manager.game
+                        )
+                        if selected_plant:
+                            return  # 选中新卡牌后返回
+                    # 如果点击的是已选中的卡牌，不做任何处理（让玩家点击战场种植）
+                    break
+            # 如果没有点击卡牌区域，继续处理种植逻辑
+            if not clicked_card:
+                # 继续执行下面的种植逻辑（优先级6）
+                pass
+            else:
+                # 点击了已选中的卡牌，不拦截，继续执行（允许玩家再次点击同一卡牌后点击战场种植）
+                pass
+
+        # **优先级6：种子雨植物种植**
+        if (hasattr(self.game_manager, 'seed_rain_manager') and
+                self.game_manager.seed_rain_manager and
+                self.game_manager.seed_rain_manager.enabled):
+
+            selected = self.game_manager.game["selected"]
+
+            # 如果选中了植物（非工具）且点击了战场
+            if selected and selected not in ["shovel", "hammer"] and self._is_battlefield_click(x, y):
+                plants_before = len(self.game_manager.game["plants"])
+
+                # 🔧 关键修复：临时移除冷却时间，因为种子雨不应该有冷却
+                original_cooldown = None
+                if selected in self.game_manager.game.get("card_cooldowns", {}):
+                    original_cooldown = self.game_manager.game["card_cooldowns"][selected]
+                    self.game_manager.game["card_cooldowns"][selected] = 0
+
+                from .game_logic import handle_plant_placement
+                temp_card = {"type": selected, "cost": 0}
+
+                plant_placed = handle_plant_placement(
+                    self.game_manager.game, [temp_card], x, y,
+                    self.game_manager.game["level_manager"],
+                    self.game_manager.level_settings,
+                    self.game_manager.sounds,
+                    self.game_manager.state_manager
+                )
+
+                # 🔧 恢复原始冷却时间（如果有的话）
+                if original_cooldown is not None:
+                    self.game_manager.game["card_cooldowns"][selected] = original_cooldown
+
+                if plant_placed and len(self.game_manager.game["plants"]) > plants_before:
+                    # 先移除种子雨卡牌，再清除选中状态
+                    self._remove_seed_rain_card_by_type(selected)
+
+                    # 移除卡牌后再清除选中状态
+                    self.game_manager.game["selected"] = None
+                    self.game_manager.state_manager.clear_plant_preview()
+                else:
+                    pass
+
+                return
+            return
+
+        # **优先级7：传送带模式（如果启用）**
+        if (hasattr(self.game_manager, 'conveyor_belt_manager') and
+                self.game_manager.conveyor_belt_manager is not None and
+                self.game_manager.game["level_manager"].current_level != 18):
+
+            selected_plant_type = self.game_manager.conveyor_belt_manager.handle_click((x, y), 0)
+            if selected_plant_type:
+                if self.game_manager.game["selected"] == "hammer":
+                    self.game_manager.state_manager.clear_hammer_cursor()
+                self.game_manager.game["selected"] = selected_plant_type
+                return
+
+            if self._is_battlefield_click(x, y):
+                self._handle_conveyor_belt_planting(x, y)
+                return
+
+            return
+
+        # **优先级8：传统卡槽模式**
+        cards = self.game_manager.get_available_cards_for_current_state()
+
+        # 检测是否点击卡槽
         clicked_card = None
         for i, card in enumerate(cards):
             card_x = CARD_START_X + i * CARD_WIDTH
@@ -1145,18 +1396,17 @@ class EventHandler:
                     break
 
         if clicked_card:
-            # 如果之前选中的是锤子，清除锤子跟随状态
             if self.game_manager.game["selected"] == "hammer":
                 self.game_manager.state_manager.clear_hammer_cursor()
-
             self.game_manager.game["selected"] = clicked_card
             return
 
-        # 记录种植前的状态
+        # 处理植物种植
         plants_before = len(self.game_manager.game["plants"])
         selected_before = self.game_manager.game["selected"]
+        is_tool_before = selected_before in ["shovel", "hammer"]
 
-        # 处理植物种植（保持原有逻辑不变）
+        from .game_logic import handle_plant_placement
         plant_placed = handle_plant_placement(
             self.game_manager.game, cards, x, y,
             self.game_manager.game["level_manager"],
@@ -1165,14 +1415,75 @@ class EventHandler:
             self.game_manager.state_manager
         )
 
-        # 检查是否种植了植物或使用了铲子
         plants_after = len(self.game_manager.game["plants"])
-        selected_after = self.game_manager.game["selected"]
 
-        # 如果植物数量变化或选中状态被清空（说明进行了种植或铲除操作）
-        if plants_after != plants_before or (selected_before and not selected_after):
-            # 清除预览状态，因为战场状态已经改变
+        # 铲子使用后保持选中
+        if selected_before == "shovel" and plant_placed:
+            self.game_manager.game["selected"] = "shovel"
             self.game_manager.state_manager.clear_plant_preview()
+        elif plants_after != plants_before or (selected_before == "hammer" and not self.game_manager.game["selected"]):
+            self.game_manager.state_manager.clear_plant_preview()
+
+    def _remove_seed_rain_card_by_type(self, plant_type):
+        """根据植物类型移除种子雨卡牌 - 增强调试版本"""
+        if (hasattr(self.game_manager, 'seed_rain_manager') and
+                self.game_manager.seed_rain_manager and
+                self.game_manager.seed_rain_manager.enabled):
+
+
+            # 找到并移除已选中的对应类型卡牌
+            card_removed = False
+            for card in self.game_manager.seed_rain_manager.cards[:]:
+                if card.plant_type == plant_type and card.selected:
+                    self.game_manager.seed_rain_manager.cards.remove(card)
+                    card_removed = True
+
+                    break
+
+    def _handle_conveyor_belt_planting(self, x, y):
+        """处理传送带模式下的植物种植 - 修复：支持铲子和锤子的正常使用"""
+        selected = self.game_manager.game["selected"]
+
+        # 修复：移除错误的过滤条件，允许所有工具的使用
+        if not selected:
+            return
+
+        # 传送带模式：不消耗阳光，直接调用特殊的种植函数
+        from .game_logic import handle_conveyor_belt_plant_placement
+
+        # **关键修复：记录使用前的选中状态**
+        was_shovel_selected = (selected == "shovel")
+
+        # 关键修复：铲子和锤子也需要正常传递给处理函数
+        plant_placed = handle_conveyor_belt_plant_placement(
+            self.game_manager.game,
+            x, y,
+            selected,  # 直接传递选中的工具/植物类型，包括 "shovel" 和 "hammer"
+            self.game_manager.game["level_manager"],
+            self.game_manager.sounds,
+            self.game_manager.state_manager
+        )
+
+        if plant_placed:
+            # **关键修复：铲子使用成功后保持选中状态**
+            if was_shovel_selected:
+                # 强制保持铲子选中状态
+                self.game_manager.game["selected"] = "shovel"
+                # 不清除植物预览，因为铲子模式不需要预览
+            elif selected not in ["shovel", "hammer"] and self.game_manager.conveyor_belt_manager:
+                # 只有在种植成功后才处理传送带卡牌移除（铲子和锤子不需要移除卡牌）
+                # 种植成功，移除传送带上的已选卡牌
+                self.game_manager.conveyor_belt_manager.remove_selected_card()
+
+                # 清除选择状态
+                self.game_manager.game["selected"] = None
+                self.game_manager.state_manager.clear_plant_preview()
+
+            # 特殊处理：如果使用的是锤子，清除锤子跟随状态
+            if selected == "hammer":
+                self.game_manager.state_manager.clear_hammer_cursor()
+                # 锤子使用后清除选中状态（保持原有行为）
+                self.game_manager.game["selected"] = None
 
     def _can_select_card(self, card):
         """检查卡片是否可以选择"""
@@ -1203,18 +1514,38 @@ class EventHandler:
         return True
 
     def _handle_right_click_cancel(self):
-        """处理右键点击取消选中"""
+        """处理右键点击取消选中 - 修复传送带模式状态同步问题"""
         # 只在游戏进行中响应右键取消
         if self.game_manager.state_manager.game_state == "playing":
+            # 优先处理种子雨取消
+            if (hasattr(self.game_manager, 'seed_rain_manager') and
+                    self.game_manager.seed_rain_manager and
+                    self.game_manager.seed_rain_manager.enabled):
+                self.game_manager.seed_rain_manager.handle_right_click(self.game_manager.game)
             # 检查是否有当前选中的植物或铲子
             if self.game_manager.game["selected"]:
                 # 如果取消的是锤子，清除锤子跟随状态
                 if self.game_manager.game["selected"] == "hammer":
                     self.game_manager.state_manager.clear_hammer_cursor()
 
+                # 关键修复：如果是传送带模式，需要同步清除传送带管理器的选中状态
+                if (hasattr(self.game_manager, 'conveyor_belt_manager') and
+                        self.game_manager.conveyor_belt_manager is not None):
+                    # 清除传送带管理器的选中状态
+                    self.game_manager.conveyor_belt_manager.clear_selection()
+
                 # 取消选中
                 self.game_manager.game["selected"] = None
 
+                # 清除植物预览状态
+                self.game_manager.state_manager.clear_plant_preview()
+
+            # 额外修复：即使游戏状态中没有选中，也要检查传送带是否有选中状态
+            elif (hasattr(self.game_manager, 'conveyor_belt_manager') and
+                  self.game_manager.conveyor_belt_manager is not None and
+                  self.game_manager.conveyor_belt_manager.get_selected_card() is not None):
+                # 清除传送带管理器的选中状态
+                self.game_manager.conveyor_belt_manager.clear_selection()
                 # 清除植物预览状态
                 self.game_manager.state_manager.clear_plant_preview()
 

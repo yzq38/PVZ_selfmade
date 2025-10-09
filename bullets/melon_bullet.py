@@ -104,6 +104,11 @@ class MelonBullet(BaseBullet):
 
     def attack_zombie(self, zombie, level_settings):
         """西瓜子弹的攻击逻辑"""
+        # 不攻击被魅惑的僵尸（友军）
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            return 0  # 不造成伤害
+        if hasattr(zombie, 'team') and zombie.team == "plant":
+            return 0  # 不攻击植物阵营的单位
         if zombie.is_dying or not self.can_hit_zombie(zombie):
             return 0
 

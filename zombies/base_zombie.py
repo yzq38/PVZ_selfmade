@@ -1,5 +1,5 @@
 """
-僵尸基类
+僵尸基类 - 添加魅惑状态图片反转功能
 """
 import pygame
 import random
@@ -14,13 +14,19 @@ class BaseZombie:
                  level_settings=None, zombie_type="normal"):
         # 基础属性
         self.row = row
-        self.col = constants['GRID_WIDTH'] if constants else 9  # 从最右侧生成
+        self.col = constants['GRID_WIDTH'] if constants else 9
         self.zombie_type = zombie_type
 
         # 存储引用
         self.constants = constants
         self.sounds = sounds
         self.images = images
+
+        # 阵营和魅惑相关属性（添加这些）
+        self.team = "zombie"  # 默认阵营
+        self.is_charmed = False  # 是否被魅惑
+        self.pending_charm = 0  # 待处理的魅惑时间
+        self.charm_attack_timer = 0  # 魅惑攻击计时器
 
         # 移动和攻击属性
         self.is_fast = is_fast
@@ -74,7 +80,10 @@ class BaseZombie:
 
         # 逐渐减速
         self.death_speed_reduction = max(0, self.death_speed_reduction - 0.02)
-        self.col -= self.speed * self.death_speed_reduction
+
+        # 修复：死亡动画保持原有移动方向
+        # 使用 += 而不是 -= 来保持僵尸生前的移动方向
+        self.col += self.speed * self.death_speed_reduction
 
         # 计算透明度（从255到0线性变化）
         progress = self.death_animation_timer / self.death_animation_duration
@@ -85,7 +94,7 @@ class BaseZombie:
             self.health = 0
 
     def update(self, plants):
-        """更新僵尸状态（移动/攻击）- 基础实现"""
+        """更新僵尸状态（移动/攻击）- 修复魅惑逻辑"""
         if not self.constants:
             return
 
@@ -106,19 +115,36 @@ class BaseZombie:
         if self.is_stunned:
             return
 
-        # 正确处理速度更新，考虑冰冻状态
+        # 处理魅惑状态
+        if hasattr(self, 'is_charmed') and self.is_charmed:
+            # 魅惑僵尸向右移动（正速度）
+            if not self.is_attacking:  # 如果没在和其他僵尸战斗
+                self.col += abs(self.speed)  # 向右移动
+            # 魅惑僵尸不攻击植物
+            return
+
+        # 正常僵尸的速度计算
         if hasattr(self, 'is_frozen') and self.is_frozen:
             # 冰冻状态下不更新速度，保持减速状态
             pass
-        else:
-            # 只有在非冰冻状态下才重新计算速度
+        elif not (hasattr(self, '_ice_trail_boosted') and self._ice_trail_boosted):
+            # 只有在非冰冻且非冰道加成状态下才重新计算速度
             self.speed = self.base_speed * (2.5 if (self.wave_mode and self.is_fast) else 1)
+            # 确保正常僵尸速度是负的（向左移动）
+            if self.speed > 0:
+                self.speed = -abs(self.speed)
 
         # 调用子类的具体攻击逻辑
         self._update_attack_logic(plants)
 
-    def _update_attack_logic(self, plants):
-        """子类需要实现的攻击逻辑"""
+    def update_zombie_attack_logic_for_charm(zombie, plants):
+        """更新僵尸攻击逻辑，处理魅惑状态"""
+        # 如果僵尸被魅惑，不攻击植物
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            # 魅惑僵尸不攻击植物，继续向右移动
+            if not zombie.is_attacking:  # 如果没在和其他僵尸战斗
+                zombie.col += abs(zombie.speed)  # 向右移动
+            return
         raise NotImplementedError("子类必须实现_update_attack_logic方法")
 
     def set_stun_status(self, stunned: bool):
@@ -151,8 +177,22 @@ class BaseZombie:
             particle = CucumberSprayParticle(zombie_x, zombie_y, direction=-1)  # 向左喷射
             self.spray_particles.append(particle)
 
+    def _flip_image_if_charmed(self, image):
+        """如果僵尸被魅惑，翻转图片"""
+        if hasattr(self, 'is_charmed') and self.is_charmed:
+            return pygame.transform.flip(image, True, False)  # 水平翻转
+        return image
+
+    def _get_zombie_image(self, image_key):
+        """获取僵尸图片，如果被魅惑会自动翻转"""
+        if not self.images or not self.images.get(image_key):
+            return None
+
+        base_image = self.images[image_key]
+        return self._flip_image_if_charmed(base_image)
+
     def draw(self, surface):
-        """绘制僵尸和防具（使用图片）- 基础实现"""
+        """绘制僵尸和防具（使用图片）- 基础实现，增加魅惑状态图片翻转"""
         if not self.constants:
             return
 
@@ -180,6 +220,37 @@ class BaseZombie:
             sway_frequency = 0
             sway_offset = int(math.sin(self.stun_visual_timer * sway_frequency) * sway_amplitude)
             x += sway_offset
+
+        # 如果被魅惑，添加粉色光环
+        if hasattr(self, 'is_charmed') and self.is_charmed:
+            # 计算僵尸中心位置
+            center_x = base_x + actual_size // 2
+            center_y = base_y + actual_size // 2
+
+            # 绘制粉色光环
+            halo_radius = int(actual_size * 0.7)
+            halo_surface = pygame.Surface((halo_radius * 2, halo_radius * 2), pygame.SRCALPHA)
+
+            # 绘制渐变光环
+            for i in range(5):
+                alpha = 60 - i * 10
+                color = (255, 192, 203, alpha)  # 粉色，逐渐变淡
+                radius = halo_radius - i * 3
+                pygame.draw.circle(halo_surface, color, (halo_radius, halo_radius), radius)
+
+            surface.blit(halo_surface, (center_x - halo_radius, center_y - halo_radius))
+
+            # 绘制爱心符号
+            heart_size = 10
+            heart_y = center_y - actual_size // 2 - 15
+
+            # 简单的心形
+            pygame.draw.circle(surface, (255, 105, 180), (center_x - 3, heart_y), heart_size // 2)
+            pygame.draw.circle(surface, (255, 105, 180), (center_x + 3, heart_y), heart_size // 2)
+            pygame.draw.polygon(surface, (255, 105, 180),
+                                [(center_x - 6, heart_y),
+                                 (center_x + 6, heart_y),
+                                 (center_x, heart_y + 8)])
 
         # 调用子类的具体绘制逻辑
         self._draw_zombie_body(surface, x, y, base_x, base_y, actual_size)
@@ -221,7 +292,7 @@ class BaseZombie:
         raise NotImplementedError("子类必须实现_draw_zombie_to_surface方法")
 
     def _draw_armor(self, surface, x, y, actual_size):
-        """绘制防具"""
+        """绘制防具 - 修改：支持魅惑状态翻转"""
         if self.has_armor and self.armor_health > 0:
             if self.images and self.images.get('armor_img'):
                 armor_offset = int(5 * self.size_multiplier)
@@ -229,12 +300,14 @@ class BaseZombie:
                 armor_x = x + armor_offset
                 armor_y = y + armor_offset
 
+                # 获取翻转后的防具图片（如果被魅惑）
+                armor_img = self._get_zombie_image('armor_img')
+
                 if self.zombie_type == "giant":
-                    original_armor = self.images['armor_img']
-                    scaled_armor = pygame.transform.scale(original_armor, (armor_size, armor_size))
+                    scaled_armor = pygame.transform.scale(armor_img, (armor_size, armor_size))
                     surface.blit(scaled_armor, (armor_x, armor_y))
                 else:
-                    surface.blit(self.images['armor_img'], (armor_x, armor_y))
+                    surface.blit(armor_img, (armor_x, armor_y))
 
                 # 如果僵尸被冰冻，在防具上也应用冰冻效果
                 if hasattr(self, 'is_frozen') and self.is_frozen:
@@ -255,7 +328,7 @@ class BaseZombie:
                 pygame.draw.rect(surface, armor_color, (armor_x, armor_y, armor_size, armor_size))
 
     def _draw_dying_armor(self, surface, x, y, actual_size):
-        """绘制死亡动画中的防具"""
+        """绘制死亡动画中的防具 - 修改：支持魅惑状态翻转"""
         if self.images and self.images.get('armor_img'):
             armor_offset = int(5 * self.size_multiplier)
             armor_size = actual_size - armor_offset * 2
@@ -263,12 +336,15 @@ class BaseZombie:
             armor_y = y + armor_offset
 
             armor_surface = pygame.Surface((armor_size, armor_size), pygame.SRCALPHA)
+
+            # 获取翻转后的防具图片（如果被魅惑）
+            armor_img = self._get_zombie_image('armor_img')
+
             if self.zombie_type == "giant":
-                original_armor = self.images['armor_img']
-                scaled_armor = pygame.transform.scale(original_armor, (armor_size, armor_size))
+                scaled_armor = pygame.transform.scale(armor_img, (armor_size, armor_size))
                 armor_surface.blit(scaled_armor, (0, 0))
             else:
-                armor_surface.blit(self.images['armor_img'], (0, 0))
+                armor_surface.blit(armor_img, (0, 0))
 
             armor_surface.set_alpha(self.current_alpha)
             surface.blit(armor_surface, (armor_x, armor_y))

@@ -9,7 +9,13 @@ from .shooter_base import ShooterPlant
 
 class LightningFlower(ShooterPlant):
     """闪电花：链式闪电攻击"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'lightning_flower_60',
+        'display_name': '闪电花',
+        'category': 'shooter',
+        'preview_alpha': 130,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "lightning_flower", constants, images, level_manager, base_shoot_delay=120)
 
@@ -41,7 +47,7 @@ class LightningFlower(ShooterPlant):
         return 0
 
     def perform_lightning_attack(self, zombies_list, sounds=None):
-        """执行闪电链式攻击"""
+        """执行闪电链式攻击 - 修复：排除魅惑僵尸"""
         if not zombies_list:
             return 0
 
@@ -50,6 +56,12 @@ class LightningFlower(ShooterPlant):
         min_distance = float('inf')
 
         for zombie in zombies_list:
+            # *** 关键修复：跳过魅惑僵尸 ***
+            if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+                continue
+            if hasattr(zombie, 'team') and zombie.team == "plant":
+                continue
+
             if zombie.row == self.row and zombie.col > self.col and zombie.health > 0:
                 distance = zombie.col - self.col
                 if distance < min_distance:
@@ -70,6 +82,12 @@ class LightningFlower(ShooterPlant):
 
         for chain_count in range(self.max_chains):
             if not current_target or current_target.health <= 0:
+                break
+
+            # *** 再次确认当前目标不是魅惑僵尸 ***
+            if hasattr(current_target, 'is_charmed') and current_target.is_charmed:
+                break
+            if hasattr(current_target, 'team') and current_target.team == "plant":
                 break
 
             # 记录攻击目标和伤害
@@ -94,6 +112,12 @@ class LightningFlower(ShooterPlant):
 
             # 检查僵尸是否需要开始死亡动画
             if current_target.health <= 0 and not current_target.is_dying:
+                if hasattr(current_target, 'zombie_type') and current_target.zombie_type == "exploding":
+                    if not hasattr(current_target, 'death_by_explosion'):
+                        current_target.death_by_explosion = False
+                    if not current_target.death_by_explosion:
+                        current_target.explosion_triggered = True
+                        current_target.explosion_timer = current_target.explosion_delay
                 current_target.start_death_animation()
 
             # 创建闪电视觉效果
@@ -125,7 +149,7 @@ class LightningFlower(ShooterPlant):
         return zombies_hit
 
     def find_next_lightning_target(self, current_zombie, zombies_list, chain_targets):
-        """寻找下一个闪电跳跃目标"""
+        """寻找下一个闪电跳跃目标 - 修复：排除魅惑僵尸"""
         hit_zombies = {target['zombie'] for target in chain_targets}
         next_target = None
         min_distance = float('inf')
@@ -133,6 +157,12 @@ class LightningFlower(ShooterPlant):
         for zombie in zombies_list:
             if (zombie in hit_zombies or zombie.health <= 0 or
                     zombie.is_dying or zombie == current_zombie):
+                continue
+
+            # *** 关键修复：跳过魅惑僵尸 ***
+            if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+                continue
+            if hasattr(zombie, 'team') and zombie.team == "plant":
                 continue
 
             # 计算距离
@@ -146,6 +176,7 @@ class LightningFlower(ShooterPlant):
                 next_target = zombie
 
         return next_target
+
 
     def create_lightning_effect(self, start_row, start_col, end_row, end_col):
         """创建闪电视觉效果"""

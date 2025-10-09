@@ -50,6 +50,7 @@ missing module named pyimod02_importers - imported by D:\pycharm\.venv\Lib\site-
 missing module named '_typeshed.importlib' - imported by pkg_resources (conditional)
 missing module named jnius - imported by platformdirs.android (delayed, conditional, optional)
 missing module named android - imported by platformdirs.android (delayed, conditional, optional)
+missing module named constants - imported by animation.menu (delayed, conditional), ui.renderer_manager (delayed, conditional)
 missing module named OpenGL - imported by pygame (delayed)
 missing module named _dummy_thread - imported by numpy._core.arrayprint (optional)
 missing module named 'numpy_distutils.cpuinfo' - imported by numpy.f2py.diagnose (delayed, conditional, optional)

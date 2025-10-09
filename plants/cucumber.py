@@ -10,7 +10,13 @@ from .particles import CucumberExplosionParticle, CucumberSprayParticle
 
 class Cucumber(BasePlant):
     """黄瓜：全屏眩晕+喷射效果"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'cucumber_60',
+        'display_name': '黄瓜炸弹',
+        'category': 'explosive',
+        'preview_alpha': 128,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "cucumber", constants, images, level_manager)
 

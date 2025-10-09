@@ -1,9 +1,11 @@
 from .base_bullet import BaseBullet
+from .moon_bullet import MoonBullet
 from .pea_bullet import PeaBullet
 from .melon_bullet import MelonBullet
 from .spike_bullet import SpikeBullet
 from .ice_bullet import IceBullet
 from .dandelion_seed import DandelionSeed
+from .psychedelic_bullet import PsychedelicBullet
 
 
 # 工厂函数，用于创建不同类型的子弹，支持传送门穿越
@@ -24,7 +26,9 @@ def create_bullet(bullet_type, row, col, **kwargs):
         "pea": PeaBullet,
         "melon": MelonBullet,
         "spike": SpikeBullet,
-        "ice": IceBullet
+        "ice": IceBullet,
+        "moon":MoonBullet,
+        "psychedelic":PsychedelicBullet
     }
 
     bullet_class = bullet_classes.get(bullet_type, PeaBullet)
@@ -46,7 +50,7 @@ def _setup_portal_support(bullet, bullet_type, **kwargs):
         **kwargs: 传送门相关参数
     """
     # 只有特定类型的子弹支持传送门穿越
-    portal_supported_types = ["pea", "ice"]
+    portal_supported_types = ["pea", "ice","moon"]
 
     if bullet_type in portal_supported_types:
         # 从kwargs中提取传送门相关参数
@@ -136,5 +140,7 @@ __all__ = [
     'SpikeBullet',
     'IceBullet',
     'DandelionSeed',
-    'create_bullet'
+    'create_bullet',
+    'MoonBullet',
+    'PsychedelicBullet',
 ]

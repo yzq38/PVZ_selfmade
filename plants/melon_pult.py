@@ -7,7 +7,13 @@ from .shooter_base import ShooterPlant
 
 class MelonPult(ShooterPlant):
     """西瓜投手：发射西瓜，造成溅射伤害"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'watermelon_60',
+        'display_name': '西瓜投手',
+        'category': 'catapult',
+        'preview_alpha': 130,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "melon_pult", constants, images, level_manager, base_shoot_delay=100)
 

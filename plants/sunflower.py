@@ -7,6 +7,13 @@ from .base_plant import BasePlant
 
 class Sunflower(BasePlant):
     """向日葵：产生阳光"""
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'sunflower_60',
+        'display_name': '向日葵',
+        'category': 'production',
+        'preview_alpha': 128,
+    }
 
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "sunflower", constants, images, level_manager)
@@ -19,6 +26,11 @@ class Sunflower(BasePlant):
     def update(self):
         """更新向日葵状态，返回产生的阳光量"""
         produced_sun = 0
+
+        # 检查是否有向日葵停产特性
+        if self.level_manager and self.level_manager.has_special_feature("sunflower_no_produce"):
+            # 向日葵停产，不产生阳光
+            return 0
 
         # 速度倍率支持
         speed_multiplier = 1.0

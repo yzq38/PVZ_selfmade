@@ -84,8 +84,8 @@ class ShopManager:
     def load_purchased_items(self):
         """从文件加载已购买物品"""
         try:
-            if os.path.exists("database/purchased_items.json"):  # 修改路径
-                with open("database/purchased_items.json", "r", encoding="utf-8") as f:
+            if os.path.exists("save/purchased_items.json"):  # 修改路径
+                with open("save/purchased_items.json", "r", encoding="utf-8") as f:
                     return set(json.load(f))
             return set()
         except:
@@ -94,7 +94,7 @@ class ShopManager:
     def save_purchased_items(self):
         """保存已购买物品到文件"""
         try:
-            with open("database/purchased_items.json", "w", encoding="utf-8") as f:  # 修改路径
+            with open("save/purchased_items.json", "w", encoding="utf-8") as f:  # 修改路径
                 json.dump(list(self.purchased_items), f, ensure_ascii=False, indent=2)
         except:
             pass

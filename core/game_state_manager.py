@@ -20,7 +20,8 @@ class GameStateManager:
         self.show_reset_confirm = False
         self.show_continue_dialog = False
         self.selected_level_for_continue = None
-
+        self.show_purchase_confirm = False
+        self.pending_purchase_item = None
         # 过渡状态
         self.transition_state = "none"  # "none", "level_to_game_fade_out", "level_to_game_fade_in"
         self.transition_timer = 0
@@ -297,6 +298,20 @@ class GameStateManager:
     def get_insufficient_coins_item(self):
         """获取金币不足的商品信息"""
         return self.insufficient_coins_item
+
+    def show_purchase_confirmation(self, item):
+        """显示购买确认对话框"""
+        self.show_purchase_confirm = True
+        self.pending_purchase_item = item
+
+    def hide_purchase_confirmation(self):
+        """隐藏购买确认对话框"""
+        self.show_purchase_confirm = False
+        self.pending_purchase_item = None
+
+    def get_pending_purchase_item(self):
+        """获取待购买的物品"""
+        return self.pending_purchase_item
 
     def set_hammer_cursor_pos(self, x, y):
         """设置锤子跟随鼠标的位置"""

@@ -12,7 +12,7 @@ import copy
 
 # 导入特性管理器
 try:
-    from features_manager import features_manager
+    from core.features_manager import features_manager
 except ImportError:
     print("警告：无法导入特性管理器，特性功能将不可用")
     features_manager = None

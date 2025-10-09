@@ -7,7 +7,13 @@ from .base_plant import BasePlant
 
 class WallNut(BasePlant):
     """坚果墙：高血量防御植物"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'wall_nut_60',
+        'display_name': '坚果墙',
+        'category': 'defense',
+        'preview_alpha': 128,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "wall_nut", constants, images, level_manager)
         # 基类已经设置了血量为1500

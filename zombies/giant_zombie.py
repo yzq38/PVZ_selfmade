@@ -1,5 +1,5 @@
 """
-巨人僵尸类
+巨人僵尸类 - 支持魅惑状态图片翻转
 """
 import pygame
 from .base_zombie import BaseZombie
@@ -34,7 +34,14 @@ class GiantZombie(BaseZombie):
         self.attack_target = None  # 攻击目标植物
 
     def _update_attack_logic(self, plants):
-        """巨人僵尸的砸击攻击逻辑"""
+        """巨人僵尸的砸击攻击逻辑 - 修复：处理魅惑状态"""
+        # 如果被魅惑，不攻击植物
+        if hasattr(self, 'is_charmed') and self.is_charmed:
+            # 魅惑僵尸向右移动，不攻击植物
+            if not self.is_attacking:  # 如果没在和其他僵尸战斗
+                self.col += abs(self.speed)
+            return
+
         # 检测是否碰撞植物（更精确的碰撞检测）
         collision_plant = None
         for plant in plants:
@@ -81,7 +88,11 @@ class GiantZombie(BaseZombie):
             self.attack_target = None
             self.has_attacked_once = False
             self.smash_timer = 0
-            self.col -= self.speed
+
+            # 确保速度方向正确
+            if self.speed > 0:
+                self.speed = -abs(self.speed)
+            self.col -= abs(self.speed)
 
     def _perform_smash_attack(self):
         """执行砸击攻击"""
@@ -97,28 +108,27 @@ class GiantZombie(BaseZombie):
                 self.sounds["bite"].play()
 
     def _draw_zombie_body(self, surface, x, y, base_x, base_y, actual_size):
-        """绘制巨人僵尸本体"""
+        """绘制巨人僵尸本体 - 支持魅惑状态图片翻转"""
         # 巨人僵尸砸击动画效果
         if self.is_attacking and not self.is_stunned:
             if self.smash_timer > self.smash_attack_delay - 10:
                 y += 3
 
-        if self.images and self.images.get('zombie_img'):
-            giant_img_key = 'giant_zombie_img' if 'giant_zombie_img' in self.images else 'zombie_img'
-            original_img = self.images[giant_img_key]
-            scaled_img = pygame.transform.scale(original_img, (actual_size, actual_size))
+        # 获取巨人僵尸图片，优先使用专用图片，否则使用普通僵尸图片
+        giant_img_key = 'giant_zombie_img' if self.images and self.images.get('giant_zombie_img') else 'zombie_img'
+        zombie_img = self._get_zombie_image(giant_img_key)
+
+        if zombie_img:
+            scaled_img = pygame.transform.scale(zombie_img, (actual_size, actual_size))
 
             # 修复：改进冰冻效果 - 使用海蓝色覆盖层
             if hasattr(self, 'is_frozen') and self.is_frozen:
-                # 创建海蓝色冰冻效果
-                freeze_surface = scaled_img.copy()
+                # 先绘制原图，再绘制覆盖层
+                surface.blit(scaled_img, (x, y))
 
                 # 创建海蓝色覆盖层（更强烈的效果）
                 ice_overlay = pygame.Surface((actual_size, actual_size), pygame.SRCALPHA)
                 ice_overlay.fill((70, 130, 180, 120))  # 海蓝色，半透明
-
-                # 先绘制原图，再绘制覆盖层
-                surface.blit(scaled_img, (x, y))
                 surface.blit(ice_overlay, (x, y))
 
                 # 绘制冰晶装饰效果
@@ -143,11 +153,12 @@ class GiantZombie(BaseZombie):
             pygame.draw.rect(surface, color, (x, y, actual_size, actual_size))
 
     def _draw_zombie_to_surface(self, surface, x, y, actual_size):
-        """将巨人僵尸绘制到指定surface（用于死亡动画）"""
-        if self.images and self.images.get('zombie_img'):
-            giant_img_key = 'giant_zombie_img' if 'giant_zombie_img' in self.images else 'zombie_img'
-            original_img = self.images[giant_img_key]
-            scaled_img = pygame.transform.scale(original_img, (actual_size, actual_size))
+        """将巨人僵尸绘制到指定surface（用于死亡动画）- 支持魅惑状态图片翻转"""
+        giant_img_key = 'giant_zombie_img' if self.images and self.images.get('giant_zombie_img') else 'zombie_img'
+        zombie_img = self._get_zombie_image(giant_img_key)
+
+        if zombie_img:
+            scaled_img = pygame.transform.scale(zombie_img, (actual_size, actual_size))
             surface.blit(scaled_img, (x, y))
         else:
             color = self.constants.get('GIANT_COLOR', self.constants.get('GRAY', (128, 128, 128)))

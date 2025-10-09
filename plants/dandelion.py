@@ -8,7 +8,13 @@ from .shooter_base import ShooterPlant
 
 class Dandelion(ShooterPlant):
     """蒲公英：释放5颗飘散种子"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'dandelion_60',
+        'display_name': '蒲公英',
+        'category': 'shooter',
+        'preview_alpha': 110,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "dandelion", constants, images, level_manager, base_shoot_delay=120)
 

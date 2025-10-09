@@ -29,6 +29,11 @@ class IceBullet(BaseBullet):
 
     def attack_zombie(self, zombie, level_settings):
         """冰子弹的攻击逻辑 - 造成伤害并冰冻敌人"""
+        # 不攻击被魅惑的僵尸（友军）
+        if hasattr(zombie, 'is_charmed') and zombie.is_charmed:
+            return 0  # 不造成伤害
+        if hasattr(zombie, 'team') and zombie.team == "plant":
+            return 0  # 不攻击植物阵营的单位
         if zombie.is_dying or not self.can_hit_zombie(zombie):
             return 0
 
@@ -53,13 +58,18 @@ class IceBullet(BaseBullet):
         return 1
 
     def _apply_ice_damage_and_freeze(self, zombie):
-        """应用寒冰伤害和冰冻效果 - 修复版：无视防具，直接攻击本体，支持重置冰冻计时器"""
+        """应用寒冰伤害和冰冻效果 - 修复版：正确处理冰车僵尸的免疫"""
         # 寒冰子弹无视防具，直接对本体造成伤害
         damage = self.dmg
         zombie.health -= damage
         zombie.health = max(0, zombie.health)  # 确保血量不为负数
 
-        # 应用冰冻效果（如果僵尸还活着）
+        # 检查僵尸是否免疫冰冻效果（如冰车僵尸）
+        if hasattr(zombie, 'is_ice_immune') and zombie.is_ice_immune:
+            # 免疫冰冻的僵尸只受伤害，不受减速效果
+            return
+
+        # 应用冰冻效果（如果僵尸还活着且不免疫）
         if zombie.health > 0:
             current_time = pygame.time.get_ticks()
 

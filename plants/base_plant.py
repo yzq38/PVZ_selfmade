@@ -1,5 +1,5 @@
 """
-基础植物类
+基础植物类 - 包含自描述功能
 """
 import random
 import pygame
@@ -7,6 +7,14 @@ import pygame
 
 class BasePlant:
     """基础植物类，包含所有植物共享的属性和方法"""
+
+    # 类级别的植物信息
+    PLANT_INFO = {
+        'icon_key': None,  # 图标键名
+        'display_name': 'Unknown',  # 显示名称
+        'category': 'other',  # 植物分类
+        'preview_alpha': 128,  # 预览透明度
+    }
 
     def __init__(self, row, col, plant_type=None, constants=None, images=None, level_manager=None):
         self.row = row
@@ -30,6 +38,51 @@ class BasePlant:
         self.has_exploded = False
         self.should_be_removed = False
         self.explosion_sound_played = False
+
+    @classmethod
+    def get_icon_key(cls):
+        """获取植物图标键名"""
+        return cls.PLANT_INFO.get('icon_key') or f"{cls.get_plant_type()}_60"
+
+    @classmethod
+    def get_display_name(cls):
+        """获取植物显示名称"""
+        return cls.PLANT_INFO.get('display_name', cls.get_plant_type())
+
+    @classmethod
+    def get_category(cls):
+        """获取植物分类"""
+        return cls.PLANT_INFO.get('category', 'other')
+
+    @classmethod
+    def get_plant_type(cls):
+        """获取植物类型标识"""
+        # 默认使用类名的小写形式，去掉Plant后缀
+        class_name = cls.__name__.lower()
+        if class_name.endswith('plant'):
+            class_name = class_name[:-5]
+        # 特殊处理一些类名
+        type_mapping = {
+            'sunflower': 'sunflower',
+            'shooter': 'shooter',
+            'wallnut': 'wall_nut',
+            'cherrybomb': 'cherry_bomb',
+            'cucumber': 'cucumber',
+            'melonpult': 'melon_pult',
+            'cattail': 'cattail',
+            'dandelion': 'dandelion',
+            'icecactus': 'ice_cactus',
+            'lightningflower': 'lightning_flower',
+            'sunshroom':'sun_shroom',
+            'moonflower':'moon_flower',
+            'psychedelicpitcher':'psychedelic_pitcher',
+        }
+        return type_mapping.get(class_name, class_name)
+
+    @classmethod
+    def get_preview_alpha(cls):
+        """获取预览透明度"""
+        return cls.PLANT_INFO.get('preview_alpha', 128)
 
     def take_damage(self, damage):
         """植物受到伤害"""

@@ -17,6 +17,10 @@ class PlantType(Enum):
     CUCUMBER = "cucumber"
     DANDELION = "dandelion"
     ICE_CACTUS = "ice_cactus"
+    SUN_SHROOM = "sun_shroom"
+    MOON_FLOWER = "moon_flower"
+    LUKER = "luker"
+    PSYCHEDELIC_PITCHER = "psychedelic_pitcher"
 
 
 
@@ -99,7 +103,7 @@ class CardsManager:
             PlantType.MELON_PULT.value: CardInfo(
                 plant_type=PlantType.MELON_PULT.value,
                 name="西瓜投手",
-                cost=300,
+                cost=275,
                 color=(255, 100, 100),
                 cooldown_time=480,  # 8秒
                 unlock_level=5,
@@ -143,7 +147,7 @@ class CardsManager:
             PlantType.CUCUMBER.value: CardInfo(
                 plant_type=PlantType.CUCUMBER.value,
                 name="黄瓜",
-                cost=175,
+                cost=200,
                 color=(255, 0, 0),
                 cooldown_time=1200,  # 20秒
                 unlock_level=14,
@@ -179,7 +183,47 @@ class CardsManager:
                 unlock_level=17,
                 unlock_features=["ice_cactus_available"],
                 description="发射寒冰穿透子弹"
-            )
+            ),
+            PlantType.SUN_SHROOM.value: CardInfo(
+                plant_type=PlantType.SUN_SHROOM.value,
+                name="阳光菇",
+                cost=25,  # 比向日葵便宜一半映射
+                color=(200, 150, 255),  # 淡紫色
+                cooldown_time=120,  # 2秒
+                unlock_level=22,
+                unlock_features=["sun_shroom_available"],
+                description="产生阳光，但速率比向日葵慢20%"
+            ),
+            PlantType.MOON_FLOWER.value: CardInfo(
+                plant_type=PlantType.MOON_FLOWER.value,
+                name="月亮花",
+                cost=125,
+                color=(100, 100, 200),  # 深蓝紫色
+                cooldown_time=480,  # 8秒
+                unlock_level=23,
+                unlock_features=["moon_flower_available"],
+                description="发射月亮子弹，每个月亮花提供10%攻速加成(最高50%)"
+            ),
+            PlantType.LUKER.value: CardInfo(
+                plant_type=PlantType.LUKER.value,
+                name="地刺",
+                cost=75,
+                color=(64, 64, 64),  # 深灰色
+                cooldown_time=480,  # 8秒
+                unlock_level=24,
+                unlock_features=["luker_available"],
+                description="地面防守植物，无视僵尸防具，可秒杀车子类僵尸"
+            ),
+            PlantType.PSYCHEDELIC_PITCHER.value: CardInfo(
+                plant_type=PlantType.PSYCHEDELIC_PITCHER.value,
+                name="迷幻投手",
+                cost=125,
+                color=(64, 64, 64),  # 深灰色
+                cooldown_time=480,  # 8秒
+                unlock_level=25,
+                unlock_features=["psychedelic_pitcher_available"],
+                description="魅惑僵尸使其暂时为你作战"
+            ),
         }
 
     def get_card_info(self, plant_type: str) -> Optional[CardInfo]:
@@ -205,6 +249,11 @@ class CardsManager:
         card_info = self.get_card_info(plant_type)
         if not card_info:
             return False
+
+        # 🔧 新增：检查是否禁用向日葵
+        if plant_type in ["sunflower", "sun_shroom"] and level_manager:
+            if level_manager.has_special_feature("no_sunflower"):
+                return False  # 禁用向日葵相关卡牌
 
         # 检查关卡解锁条件
         if current_level < card_info.unlock_level:

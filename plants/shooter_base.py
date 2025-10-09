@@ -25,7 +25,7 @@ class ShooterPlant(BasePlant):
 
     def _calculate_random_delay(self):
         """计算带有随机波动和关卡加成的射击间隔"""
-        if self.plant_type not in ["shooter", "melon_pult", "cattail", "dandelion", "lightning_flower", "ice_cactus"]:
+        if self.plant_type not in ["shooter", "melon_pult", "cattail", "dandelion", "lightning_flower", "ice_cactus","moon_flower","psychedelic_pitcher"]:
             return self.base_shoot_delay
 
         # 获取关卡射速倍率
@@ -44,9 +44,9 @@ class ShooterPlant(BasePlant):
 
     def _get_variation_percent(self):
         """获取射击间隔的波动百分比"""
-        if self.plant_type == "cattail":
+        if self.plant_type in ["cattail","moon_flower"]:
             return 0.05  # ±5%
-        elif self.plant_type in ["melon_pult", "dandelion", "lightning_flower", "ice_cactus"]:
+        elif self.plant_type in ["melon_pult", "dandelion", "lightning_flower", "ice_cactus","psychedelic_pitcher"]:
             return 0.08  # ±8%
         else:  # shooter
             return 0.1  # ±10%

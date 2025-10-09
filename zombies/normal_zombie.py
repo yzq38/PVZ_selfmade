@@ -1,5 +1,5 @@
 """
-普通僵尸类
+普通僵尸类 - 支持魅惑状态图片翻转
 """
 import pygame
 from .base_zombie import BaseZombie
@@ -28,19 +28,33 @@ class NormalZombie(BaseZombie):
         self.max_armor_health = self.armor_health
 
     def _update_attack_logic(self, plants):
-        """普通僵尸的攻击逻辑（原有逻辑）"""
-        # 未攻击时移动
-        if not self.is_attacking:
-            self.col -= self.speed
+        """普通僵尸的攻击逻辑 - 修复：处理魅惑状态和正确的攻击判定"""
+        # 如果被魅惑，不攻击植物
+        if hasattr(self, 'is_charmed') and self.is_charmed:
+            # 魅惑僵尸向右移动，不攻击植物
+            if not self.is_attacking:  # 如果没在和其他僵尸战斗
+                self.col += abs(self.speed)
+            return
 
-        # 检测是否碰撞植物（同列同排）
-        self.is_attacking = False
+        # 先检测是否碰撞植物（同列同排）
+        plant_collision = False
+        attacking_plant = None
+
         for plant in plants:
             if plant.row == self.row and abs(self.col - plant.col) < 0.5:
-                self.is_attacking = True
+                plant_collision = True
+                attacking_plant = plant
+                break
 
-                # 修复：使用植物的 take_damage 方法而不是直接修改血量
-                plant.take_damage(self.attack_dmg)
+        # 根据碰撞情况决定行为
+        if plant_collision:
+            # 碰到植物，停下攻击
+            self.is_attacking = True
+
+            # 攻击植物
+            if attacking_plant:
+                # 使用植物的 take_damage 方法
+                attacking_plant.take_damage(self.attack_dmg)
 
                 # 控制啃咬音效播放（每0.5秒一次）
                 bite_interval = self.constants.get('BITE_INTERVAL', 30)
@@ -50,16 +64,27 @@ class NormalZombie(BaseZombie):
                         self.sounds["bite"].play()
                     self.bite_timer = 0
 
-                # 修复：检查植物是否死亡，使用统一的死亡判断方法
-                if not plant.is_alive():
-                    plants.remove(plant)  # 植物死亡移除
-                break
+                # 检查植物是否死亡
+                if not attacking_plant.is_alive():
+                    plants.remove(attacking_plant)  # 植物死亡移除
+                    # 植物死亡后，僵尸可以继续移动
+                    self.is_attacking = False
+        else:
+            # 没有碰撞植物，继续移动
+            self.is_attacking = False
+            self.bite_timer = 0  # 重置啃咬计时器
+
+            # 确保速度是负的（向左）
+            if self.speed > 0:
+                self.speed = -abs(self.speed)
+            self.col -= abs(self.speed)  # 向左移动
 
     def _draw_zombie_body(self, surface, x, y, base_x, base_y, actual_size):
-        """绘制普通僵尸本体"""
-        if self.images and self.images.get('zombie_img'):
-            zombie_img = self.images['zombie_img']
+        """绘制普通僵尸本体 - 支持魅惑状态图片翻转"""
+        # 使用父类的 _get_zombie_image 方法获取可能翻转的图片
+        zombie_img = self._get_zombie_image('zombie_img')
 
+        if zombie_img:
             # 修复：改进冰冻效果处理
             if hasattr(self, 'is_frozen') and self.is_frozen:
                 # 先绘制原图
@@ -74,6 +99,7 @@ class NormalZombie(BaseZombie):
                 self._draw_ice_crystals(surface, x, y, actual_size)
 
             elif self.is_stunned:
+                # 对翻转后的图片应用眩晕效果
                 stun_surface = zombie_img.copy()
                 stun_surface.fill((255, 255, 0, 100), special_flags=pygame.BLEND_ADD)
                 surface.blit(stun_surface, (base_x, base_y))
@@ -92,9 +118,11 @@ class NormalZombie(BaseZombie):
             pygame.draw.rect(surface, color, (x, y, actual_size, actual_size))
 
     def _draw_zombie_to_surface(self, surface, x, y, actual_size):
-        """将僵尸绘制到指定surface（用于死亡动画）"""
-        if self.images and self.images.get('zombie_img'):
-            surface.blit(self.images['zombie_img'], (x, y))
+        """将僵尸绘制到指定surface（用于死亡动画）- 支持魅惑状态图片翻转"""
+        zombie_img = self._get_zombie_image('zombie_img')
+
+        if zombie_img:
+            surface.blit(zombie_img, (x, y))
         else:
             color = self.constants.get('GRAY', (128, 128, 128))
             pygame.draw.rect(surface, color, (x, y, actual_size, actual_size))

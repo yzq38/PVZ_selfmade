@@ -5,6 +5,13 @@ import pygame
 import math
 from core.constants import *
 
+# 导入植物注册系统（如果存在）
+try:
+    from plants.plant_registry import plant_registry
+    PLANT_REGISTRY_AVAILABLE = True
+except ImportError:
+    PLANT_REGISTRY_AVAILABLE = False
+
 
 def clamp(value, min_value, max_value):
     """将值限制在指定范围内"""
@@ -312,6 +319,13 @@ def can_place_plant_at_position(game, plant_type, row, col, level_manager):
     Returns:
         bool: 是否可以种植
     """
+    # 新增：检查冰道系统
+    if "ice_trail_manager" in game and game["ice_trail_manager"]:
+        ice_trail_manager = game["ice_trail_manager"]
+        # 检查该位置是否有冰道
+        if ice_trail_manager.has_ice_trail_at(row, col):
+            return False  # 冰道上不能种植物
+
     # 检查该位置是否已有植物
     for plant in game["plants"]:
         if plant.row == row and plant.col == col:
@@ -328,78 +342,6 @@ def can_place_plant_at_position(game, plant_type, row, col, level_manager):
     return True
 
 
-def get_plant_preview_image_key(plant_type):
-    """
-    获取植物预览图片的键名
-
-    Args:
-        plant_type: 植物类型
-
-    Returns:
-        str: 图片键名
-    """
-    image_map = {
-        'sunflower': 'sunflower_60',
-        'shooter': 'pea_shooter_60',
-        'melon_pult': 'watermelon_60',
-        'cattail': 'cattail_60',
-        'wall_nut': 'wall_nut_60',
-        'cherry_bomb': 'cherry_bomb_60',
-        'cucumber': 'cucumber_60',
-        'dandelion': 'dandelion_60',
-    }
-    return image_map.get(plant_type, None)
-
-
-def draw_plant_preview(surface, scaled_images, plant_type, target_row, target_col, can_place, alpha=10):
-    """
-    绘制植物种植预览 - 简化版本：只显示植物图标，无背景覆盖层和颜色提示
-    """
-    import pygame
-    from core.constants import BATTLEFIELD_LEFT, BATTLEFIELD_TOP, GRID_SIZE, GRID_GAP
-
-    # 计算目标位置
-    preview_x = BATTLEFIELD_LEFT + target_col * (GRID_SIZE + GRID_GAP)
-    preview_y = BATTLEFIELD_TOP + target_row * (GRID_SIZE + GRID_GAP)
-
-    # 只绘制植物图标，不绘制任何背景层或颜色提示
-    if scaled_images:
-        plant_img_key = None
-
-        # 根据植物类型选择对应的图标
-        if plant_type == "shooter":
-            plant_img_key = 'pea_shooter_60'
-        elif plant_type == "sunflower":
-            plant_img_key = 'sunflower_60'
-        elif plant_type == "melon_pult":
-            plant_img_key = 'watermelon_60'
-        elif plant_type == "cattail":
-            plant_img_key = 'cattail_60'
-        elif plant_type == "wall_nut":
-            plant_img_key = 'wall_nut_60'
-        elif plant_type == "cherry_bomb":
-            plant_img_key = 'cherry_bomb_60'
-        elif plant_type == "cucumber":
-            plant_img_key = 'cucumber_60'
-        elif plant_type == "dandelion":
-            plant_img_key = 'dandelion_60'
-
-        # 绘制植物图标
-        if plant_img_key and plant_img_key in scaled_images:
-            plant_img = scaled_images[plant_img_key]
-
-            # 创建半透明的植物图标
-            preview_surface = plant_img.copy()
-            preview_surface.set_alpha(alpha)  # 设置透明度让它看起来像预览
-
-            # 计算居中位置
-            img_x = preview_x + (GRID_SIZE - plant_img.get_width()) // 2
-            img_y = preview_y + (GRID_SIZE - plant_img.get_height()) // 2
-
-            # 绘制预览图标
-            surface.blit(preview_surface, (img_x, img_y))
-
-
 def should_show_plant_preview(game, selected_plant_type, target_row, target_col):
     """
     判断是否应该显示植物预览
@@ -413,6 +355,13 @@ def should_show_plant_preview(game, selected_plant_type, target_row, target_col)
     Returns:
         tuple: (是否显示预览, 是否可以放置)
     """
+    # 新增：检查冰道系统
+    if "ice_trail_manager" in game and game["ice_trail_manager"]:
+        ice_trail_manager = game["ice_trail_manager"]
+        # 检查该位置是否有冰道
+        if ice_trail_manager.has_ice_trail_at(target_row, target_col):
+            return False, False  # 冰道上不显示预览，不可放置
+
     # 检查目标位置是否有植物
     target_plant = None
     for plant in game["plants"]:
@@ -434,6 +383,131 @@ def should_show_plant_preview(game, selected_plant_type, target_row, target_col)
 
     # 其他情况：有植物的格子不显示预览
     return False, False  # 不显示预览，不能放置
+
+
+def get_plant_preview_image_key(plant_type):
+    """
+    获取植物预览图片的键名
+    优先使用植物注册表，如果不可用则使用硬编码映射
+
+    Args:
+        plant_type: 植物类型
+
+    Returns:
+        str: 图片键名
+    """
+    # 如果植物注册表可用，优先使用
+    if PLANT_REGISTRY_AVAILABLE:
+        return plant_registry.get_plant_icon_key(plant_type)
+
+    # 后备方案：硬编码映射
+    image_map = {
+        'sunflower': 'sunflower_60',
+        'shooter': 'pea_shooter_60',
+        'melon_pult': 'watermelon_60',
+        'cattail': 'cattail_60',
+        'wall_nut': 'wall_nut_60',
+        'cherry_bomb': 'cherry_bomb_60',
+        'cucumber': 'cucumber_60',
+        'dandelion': 'dandelion_60',
+        'lightning_flower': 'lightning_flower_60',
+        'ice_cactus': 'ice_cactus_60',
+        'psychedelic_pitcher': 'psychedelic_pitcher_60',
+    }
+    return image_map.get(plant_type, f"{plant_type}_60")
+
+
+def draw_plant_preview(surface, scaled_images, plant_type, target_row, target_col, can_place, alpha=None):
+    """
+    绘制植物种植预览 - 使用植物注册表系统
+
+    Args:
+        surface: 绘制表面
+        scaled_images: 缩放后的图片字典
+        plant_type: 植物类型
+        target_row: 目标行
+        target_col: 目标列
+        can_place: 是否可以放置
+        alpha: 透明度（可选，不提供则使用植物默认值）
+    """
+    from core.constants import BATTLEFIELD_LEFT, BATTLEFIELD_TOP, GRID_SIZE, GRID_GAP
+
+    # 获取植物的默认透明度
+    if alpha is None:
+        if PLANT_REGISTRY_AVAILABLE:
+            alpha = plant_registry.get_preview_alpha(plant_type)
+        else:
+            alpha = 128  # 默认透明度
+
+    # 如果不能放置，降低透明度
+    if not can_place:
+        alpha = max(50, alpha // 2)
+
+    # 计算目标位置
+    preview_x = BATTLEFIELD_LEFT + target_col * (GRID_SIZE + GRID_GAP)
+    preview_y = BATTLEFIELD_TOP + target_row * (GRID_SIZE + GRID_GAP)
+
+    if scaled_images:
+        # 获取植物图标键名
+        plant_img_key = get_plant_preview_image_key(plant_type)
+
+        if plant_img_key and plant_img_key in scaled_images:
+            plant_img = scaled_images[plant_img_key]
+
+            # 创建半透明的植物图标
+            preview_surface = plant_img.copy()
+            preview_surface.set_alpha(alpha)
+
+            # 如果不能放置，添加红色叠加层
+            if not can_place:
+                overlay = pygame.Surface(plant_img.get_size(), pygame.SRCALPHA)
+                overlay.fill((255, 0, 0, 60))  # 半透明红色
+                preview_surface.blit(overlay, (0, 0), special_flags=pygame.BLEND_RGBA_ADD)
+
+            # 计算居中位置
+            img_x = preview_x + (GRID_SIZE - plant_img.get_width()) // 2
+            img_y = preview_y + (GRID_SIZE - plant_img.get_height()) // 2
+
+            surface.blit(preview_surface, (img_x, img_y))
+        else:
+            # 如果没有图片，绘制占位符
+            _draw_placeholder_preview(surface, preview_x, preview_y, GRID_SIZE, can_place, alpha)
+    else:
+        # 如果没有图片资源，绘制占位符
+        _draw_placeholder_preview(surface, preview_x, preview_y, GRID_SIZE, can_place, alpha)
+
+
+def _draw_placeholder_preview(surface, x, y, size, can_place, alpha):
+    """
+    绘制占位符预览（内部函数）
+
+    Args:
+        surface: 绘制表面
+        x, y: 位置坐标
+        size: 格子大小
+        can_place: 是否可以放置
+        alpha: 透明度
+    """
+    preview_surface = pygame.Surface((size, size), pygame.SRCALPHA)
+
+    # 选择颜色
+    if can_place:
+        color = (100, 200, 100, alpha)  # 绿色
+    else:
+        color = (200, 100, 100, alpha)  # 红色
+
+    # 绘制圆形占位符
+    pygame.draw.circle(preview_surface, color,
+                       (size // 2, size // 2),
+                       size // 3)
+
+    # 绘制边框
+    border_color = (*color[:3], min(255, alpha + 50))
+    pygame.draw.circle(preview_surface, border_color,
+                       (size // 2, size // 2),
+                       size // 3, 2)
+
+    surface.blit(preview_surface, (x, y))
 
 
 def update_plant_preview_on_mouse_move(state_manager, game, cards, mouse_x, mouse_y, selected):
@@ -489,7 +563,7 @@ def update_plant_preview_on_mouse_move(state_manager, game, cards, mouse_x, mous
         # 检查冷却状态
         card_cooldowns = game.get("card_cooldowns", {})
         needs_cooldown = (level_manager.has_card_cooldown() or
-                         level_manager.current_level == 8)
+                          level_manager.current_level == 8)
 
         if needs_cooldown and selected in card_cooldowns:
             if card_cooldowns[selected] > 0:

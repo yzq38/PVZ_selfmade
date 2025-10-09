@@ -15,20 +15,25 @@
 
 <div class="node">
   <a name="main.py"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/main.py" type="text/plain"><tt>main.py</tt></a>
+  <a target="code" href="///D:/pycharm/pvz/main.py" type="text/plain"><tt>main.py</tt></a>
 <span class="moduletype">Script</span>  <div class="import">
 imports:
     <a href="#_collections_abc">_collections_abc</a>
  &#8226;   <a href="#_weakrefset">_weakrefset</a>
  &#8226;   <a href="#abc">abc</a>
- &#8226;   <a href="#animation_manager">animation_manager</a>
- &#8226;   <a href="#audio_manager">audio_manager</a>
+ &#8226;   <a href="#animation">animation</a>
  &#8226;   <a href="#bullets">bullets</a>
- &#8226;   <a href="#cards_manager">cards_manager</a>
  &#8226;   <a href="#codecs">codecs</a>
  &#8226;   <a href="#collections">collections</a>
- &#8226;   <a href="#constants">constants</a>
  &#8226;   <a href="#copyreg">copyreg</a>
+ &#8226;   <a href="#core">core</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#core.game_state_manager">core.game_state_manager</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#database">database</a>
  &#8226;   <a href="#encodings">encodings</a>
  &#8226;   <a href="#encodings.aliases">encodings.aliases</a>
  &#8226;   <a href="#encodings.ascii">encodings.ascii</a>
@@ -152,17 +157,11 @@ imports:
  &#8226;   <a href="#encodings.uu_codec">encodings.uu_codec</a>
  &#8226;   <a href="#encodings.zlib_codec">encodings.zlib_codec</a>
  &#8226;   <a href="#enum">enum</a>
- &#8226;   <a href="#event_handler">event_handler</a>
- &#8226;   <a href="#features_manager">features_manager</a>
  &#8226;   <a href="#functools">functools</a>
- &#8226;   <a href="#game_database">game_database</a>
- &#8226;   <a href="#game_logic">game_logic</a>
- &#8226;   <a href="#game_state_manager">game_state_manager</a>
  &#8226;   <a href="#genericpath">genericpath</a>
  &#8226;   <a href="#heapq">heapq</a>
  &#8226;   <a href="#io">io</a>
  &#8226;   <a href="#keyword">keyword</a>
- &#8226;   <a href="#level_manager">level_manager</a>
  &#8226;   <a href="#linecache">linecache</a>
  &#8226;   <a href="#locale">locale</a>
  &#8226;   <a href="#math">math</a>
@@ -170,9 +169,9 @@ imports:
  &#8226;   <a href="#operator">operator</a>
  &#8226;   <a href="#os">os</a>
  &#8226;   <a href="#performance">performance</a>
- &#8226;   <a href="#plant_animation">plant_animation</a>
- &#8226;   <a href="#plant_selection_manager">plant_selection_manager</a>
  &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
  &#8226;   <a href="#posixpath">posixpath</a>
  &#8226;   <a href="#pygame">pygame</a>
  &#8226;   <a href="#pyi_rth_inspect.py">pyi_rth_inspect.py</a>
@@ -186,20 +185,25 @@ imports:
  &#8226;   <a href="#re._compiler">re._compiler</a>
  &#8226;   <a href="#re._constants">re._constants</a>
  &#8226;   <a href="#re._parser">re._parser</a>
- &#8226;   <a href="#renderer_manager">renderer_manager</a>
  &#8226;   <a href="#reprlib">reprlib</a>
- &#8226;   <a href="#resource_loader">resource_loader</a>
+ &#8226;   <a href="#rsc_mng">rsc_mng</a>
+ &#8226;   <a href="#rsc_mng.audio_manager">rsc_mng.audio_manager</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
+ &#8226;   <a href="#shop">shop</a>
  &#8226;   <a href="#sre_compile">sre_compile</a>
  &#8226;   <a href="#sre_constants">sre_constants</a>
  &#8226;   <a href="#sre_parse">sre_parse</a>
  &#8226;   <a href="#stat">stat</a>
  &#8226;   <a href="#sys">sys</a>
  &#8226;   <a href="#traceback">traceback</a>
- &#8226;   <a href="#trophy">trophy</a>
  &#8226;   <a href="#types">types</a>
+ &#8226;   <a href="#ui">ui</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
  &#8226;   <a href="#warnings">warnings</a>
  &#8226;   <a href="#weakref">weakref</a>
  &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
 
   </div>
 
@@ -2360,18 +2364,148 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="animation_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/animation_manager.py" type="text/plain"><tt>animation_manager</tt></a>
+  <a name="animation"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/__init__.py" type="text/plain"><tt>animation</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#animation.manager">animation.manager</a>
+ &#8226;   <a href="#animation.menu">animation.menu</a>
+ &#8226;   <a href="#animation.plant_flying">animation.plant_flying</a>
+ &#8226;   <a href="#animation.trophy">animation.trophy</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation.constants">animation.constants</a>
+ &#8226;   <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#animation.manager">animation.manager</a>
+ &#8226;   <a href="#animation.menu">animation.menu</a>
+ &#8226;   <a href="#animation.plant_flying">animation.plant_flying</a>
+ &#8226;   <a href="#animation.trophy">animation.trophy</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="animation.constants"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/constants.py" type="text/plain"><tt>animation.constants</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#constants">constants</a>
+    <a href="#animation">animation</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation.manager">animation.manager</a>
+ &#8226;   <a href="#animation.menu">animation.menu</a>
+ &#8226;   <a href="#animation.plant_flying">animation.plant_flying</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="animation.effects"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/effects.py" type="text/plain"><tt>animation.effects</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
  &#8226;   <a href="#math">math</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#main.py">main.py</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#animation.manager">animation.manager</a>
+ &#8226;   <a href="#animation.menu">animation.menu</a>
+ &#8226;   <a href="#animation.plant_flying">animation.plant_flying</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="animation.manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/manager.py" type="text/plain"><tt>animation.manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#animation.constants">animation.constants</a>
+ &#8226;   <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#animation.menu">animation.menu</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation">animation</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="animation.menu"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/menu.py" type="text/plain"><tt>animation.menu</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#animation.constants">animation.constants</a>
+ &#8226;   <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#constants">constants</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#animation.manager">animation.manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="animation.plant_flying"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/plant_flying.py" type="text/plain"><tt>animation.plant_flying</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#animation.constants">animation.constants</a>
+ &#8226;   <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation">animation</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="animation.trophy"></a>
+  <a target="code" href="///D:/pycharm/pvz/animation/trophy.py" type="text/plain"><tt>animation.trophy</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation">animation</a>
 
   </div>
 
@@ -3441,25 +3575,6 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="audio_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/audio_manager.py" type="text/plain"><tt>audio_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#os">os</a>
- &#8226;   <a href="#pygame">pygame</a>
- &#8226;   <a href="#random">random</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#event_handler">event_handler</a>
- &#8226;   <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="backports"></a>
   <a target="code" href="///D:/pycharm/.venv/Lib/site-packages/setuptools/_vendor/backports/__init__.py" type="text/plain"><tt>backports</tt></a>
 <span class="moduletype">Package</span>  <div class="import">
@@ -3629,18 +3744,194 @@ imported by:
 
 <div class="node">
   <a name="bullets"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/bullets.py" type="text/plain"><tt>bullets</tt></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/__init__.py" type="text/plain"><tt>bullets</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#bullets.dandelion_seed">bullets.dandelion_seed</a>
+ &#8226;   <a href="#bullets.ice_bullet">bullets.ice_bullet</a>
+ &#8226;   <a href="#bullets.melon_bullet">bullets.melon_bullet</a>
+ &#8226;   <a href="#bullets.moon_bullet">bullets.moon_bullet</a>
+ &#8226;   <a href="#bullets.pea_bullet">bullets.pea_bullet</a>
+ &#8226;   <a href="#bullets.psychedelic_bullet">bullets.psychedelic_bullet</a>
+ &#8226;   <a href="#bullets.spike_bullet">bullets.spike_bullet</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#bullets.dandelion_seed">bullets.dandelion_seed</a>
+ &#8226;   <a href="#bullets.ice_bullet">bullets.ice_bullet</a>
+ &#8226;   <a href="#bullets.melon_bullet">bullets.melon_bullet</a>
+ &#8226;   <a href="#bullets.moon_bullet">bullets.moon_bullet</a>
+ &#8226;   <a href="#bullets.pea_bullet">bullets.pea_bullet</a>
+ &#8226;   <a href="#bullets.psychedelic_bullet">bullets.psychedelic_bullet</a>
+ &#8226;   <a href="#bullets.spike_bullet">bullets.spike_bullet</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#plants.dandelion">plants.dandelion</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.base_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/base_bullet.py" type="text/plain"><tt>bullets.base_bullet</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#math">math</a>
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#math">math</a>
  &#8226;   <a href="#pygame">pygame</a>
  &#8226;   <a href="#random">random</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#game_logic">game_logic</a>
- &#8226;   <a href="#main.py">main.py</a>
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.ice_bullet">bullets.ice_bullet</a>
+ &#8226;   <a href="#bullets.melon_bullet">bullets.melon_bullet</a>
+ &#8226;   <a href="#bullets.moon_bullet">bullets.moon_bullet</a>
+ &#8226;   <a href="#bullets.pea_bullet">bullets.pea_bullet</a>
+ &#8226;   <a href="#bullets.psychedelic_bullet">bullets.psychedelic_bullet</a>
+ &#8226;   <a href="#bullets.spike_bullet">bullets.spike_bullet</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.dandelion_seed"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/dandelion_seed.py" type="text/plain"><tt>bullets.dandelion_seed</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.ice_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/ice_bullet.py" type="text/plain"><tt>bullets.ice_bullet</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.melon_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/melon_bullet.py" type="text/plain"><tt>bullets.melon_bullet</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.moon_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/moon_bullet.py" type="text/plain"><tt>bullets.moon_bullet</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.pea_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/pea_bullet.py" type="text/plain"><tt>bullets.pea_bullet</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.psychedelic_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/psychedelic_bullet.py" type="text/plain"><tt>bullets.psychedelic_bullet</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="bullets.spike_bullet"></a>
+  <a target="code" href="///D:/pycharm/pvz/bullets/spike_bullet.py" type="text/plain"><tt>bullets.spike_bullet</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#bullets">bullets</a>
 
   </div>
 
@@ -3692,27 +3983,6 @@ imported by:
  &#8226;   <a href="#email._parseaddr">email._parseaddr</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
  &#8226;   <a href="#ssl">ssl</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="cards_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/cards_manager.py" type="text/plain"><tt>cards_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#enum">enum</a>
- &#8226;   <a href="#typing">typing</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#game_logic">game_logic</a>
- &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#plant_selection_manager">plant_selection_manager</a>
- &#8226;   <a href="#renderer_manager">renderer_manager</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
 
   </div>
 
@@ -4224,6 +4494,7 @@ imported by:
  &#8226;   <a href="#numpy._core.overrides">numpy._core.overrides</a>
  &#8226;   <a href="#numpy._core.records">numpy._core.records</a>
  &#8226;   <a href="#packaging._manylinux">packaging._manylinux</a>
+ &#8226;   <a href="#performance">performance</a>
  &#8226;   <a href="#pkg_resources">pkg_resources</a>
  &#8226;   <a href="#pkgutil">pkgutil</a>
  &#8226;   <a href="#platform">platform</a>
@@ -4406,23 +4677,11 @@ imported by:
 
 <div class="node">
   <a name="constants"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/constants.py" type="text/plain"><tt>constants</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#pygame">pygame</a>
-
-  </div>
-  <div class="import">
+  <a target="code" href="" type="text/plain"><tt>constants</tt></a>
+<span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
-    <a href="#animation_manager">animation_manager</a>
- &#8226;   <a href="#event_handler">event_handler</a>
- &#8226;   <a href="#game_logic">game_logic</a>
- &#8226;   <a href="#game_state_manager">game_state_manager</a>
- &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#plant_selection_manager">plant_selection_manager</a>
- &#8226;   <a href="#renderer_manager">renderer_manager</a>
- &#8226;   <a href="#resource_loader">resource_loader</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
+    <a href="#animation.menu">animation.menu</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
 
   </div>
 
@@ -4587,6 +4846,209 @@ imported by:
  &#8226;   <a href="#re">re</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#yaml.representer">yaml.representer</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/__init__.py" type="text/plain"><tt>core</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#core.features_manager">core.features_manager</a>
+ &#8226;   <a href="#core.game_state_manager">core.game_state_manager</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#core.features_manager">core.features_manager</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#core.game_state_manager">core.game_state_manager</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.cards_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/cards_manager.py" type="text/plain"><tt>core.cards_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core">core</a>
+ &#8226;   <a href="#enum">enum</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core">core</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.constants"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/constants.py" type="text/plain"><tt>core.constants</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core">core</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation.menu">animation.menu</a>
+ &#8226;   <a href="#core">core</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#core.game_state_manager">core.game_state_manager</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
+ &#8226;   <a href="#shop.cart_manager">shop.cart_manager</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.event_handler"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/event_handler.py" type="text/plain"><tt>core.event_handler</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core">core</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database">database</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#rsc_mng.audio_manager">rsc_mng.audio_manager</a>
+ &#8226;   <a href="#ui">ui</a>
+ &#8226;   <a href="#utils">utils</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core">core</a>
+ &#8226;   <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.features_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/features_manager.py" type="text/plain"><tt>core.features_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core">core</a>
+ &#8226;   <a href="#enum">enum</a>
+ &#8226;   <a href="#typing">typing</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core">core</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.game_logic"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/game_logic.py" type="text/plain"><tt>core.game_logic</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#core">core</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.features_manager">core.features_manager</a>
+ &#8226;   <a href="#performance">performance</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.game_state_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/game_state_manager.py" type="text/plain"><tt>core.game_state_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core">core</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core">core</a>
+ &#8226;   <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="core.level_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/core/level_manager.py" type="text/plain"><tt>core.level_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#core">core</a>
+ &#8226;   <a href="#core.features_manager">core.features_manager</a>
+ &#8226;   <a href="#datetime">datetime</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core">core</a>
+ &#8226;   <a href="#core.game_state_manager">core.game_state_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
 
   </div>
 
@@ -4856,6 +5318,79 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="database"></a>
+  <a target="code" href="///D:/pycharm/pvz/database/__init__.py" type="text/plain"><tt>database</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#database.game_database">database.game_database</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#database.game_database">database.game_database</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="database.game_database"></a>
+  <a target="code" href="///D:/pycharm/pvz/database/game_database.py" type="text/plain"><tt>database.game_database</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#database">database</a>
+ &#8226;   <a href="#json">json</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#time">time</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database">database</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="database.save_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/database/save_manager.py" type="text/plain"><tt>database.save_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database">database</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.giant_zombie">zombies.giant_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database">database</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="dataclasses"></a>
   <a target="code" href="///D:/Python/Lib/dataclasses.py" type="text/plain"><tt>dataclasses</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -4902,10 +5437,10 @@ imports:
 imported by:
     <a href="#_strptime">_strptime</a>
  &#8226;   <a href="#calendar">calendar</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
  &#8226;   <a href="#http.server">http.server</a>
- &#8226;   <a href="#level_manager">level_manager</a>
  &#8226;   <a href="#plistlib">plistlib</a>
  &#8226;   <a href="#psutil">psutil</a>
  &#8226;   <a href="#setuptools._vendor.tomli._re">setuptools._vendor.tomli._re</a>
@@ -8091,8 +8626,8 @@ imported by:
  &#8226;   <a href="#asyncio.sslproto">asyncio.sslproto</a>
  &#8226;   <a href="#asyncio.timeouts">asyncio.timeouts</a>
  &#8226;   <a href="#calendar">calendar</a>
- &#8226;   <a href="#cards_manager">cards_manager</a>
- &#8226;   <a href="#features_manager">features_manager</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.features_manager">core.features_manager</a>
  &#8226;   <a href="#http">http</a>
  &#8226;   <a href="#inspect">inspect</a>
  &#8226;   <a href="#main.py">main.py</a>
@@ -8150,50 +8685,12 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="event_handler"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/event_handler.py" type="text/plain"><tt>event_handler</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#audio_manager">audio_manager</a>
- &#8226;   <a href="#constants">constants</a>
- &#8226;   <a href="#game_logic">game_logic</a>
- &#8226;   <a href="#pygame">pygame</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="fcntl"></a>
   <a target="code" href="" type="text/plain"><tt>fcntl</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
     <a href="#_pyrepl.unix_console">_pyrepl.unix_console</a>
  &#8226;   <a href="#subprocess">subprocess</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="features_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/features_manager.py" type="text/plain"><tt>features_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#enum">enum</a>
- &#8226;   <a href="#typing">typing</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#level_manager">level_manager</a>
- &#8226;   <a href="#main.py">main.py</a>
 
   </div>
 
@@ -8439,66 +8936,6 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="game_database"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/game_database.py" type="text/plain"><tt>game_database</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#json">json</a>
- &#8226;   <a href="#os">os</a>
- &#8226;   <a href="#time">time</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="game_logic"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/game_logic.py" type="text/plain"><tt>game_logic</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#bullets">bullets</a>
- &#8226;   <a href="#cards_manager">cards_manager</a>
- &#8226;   <a href="#constants">constants</a>
- &#8226;   <a href="#performance">performance</a>
- &#8226;   <a href="#plants">plants</a>
- &#8226;   <a href="#pygame">pygame</a>
- &#8226;   <a href="#random">random</a>
- &#8226;   <a href="#zombies">zombies</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#event_handler">event_handler</a>
- &#8226;   <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="game_state_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/game_state_manager.py" type="text/plain"><tt>game_state_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#constants">constants</a>
- &#8226;   <a href="#level_manager">level_manager</a>
- &#8226;   <a href="#pygame">pygame</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="gc"></a>
   <tt>gc</tt> <span class="moduletype"><i>(builtin module)</i></span>  <div class="import">
 imports:
@@ -8509,6 +8946,7 @@ imports:
 imported by:
     <a href="#_posixsubprocess">_posixsubprocess</a>
  &#8226;   <a href="#numpy.testing._private.utils">numpy.testing._private.utils</a>
+ &#8226;   <a href="#performance">performance</a>
  &#8226;   <a href="#weakref">weakref</a>
 
   </div>
@@ -9869,17 +10307,18 @@ imports:
   <div class="import">
 imported by:
     <a href="#charset_normalizer.models">charset_normalizer.models</a>
- &#8226;   <a href="#game_database">game_database</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#database.game_database">database.game_database</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#json.decoder">json.decoder</a>
  &#8226;   <a href="#json.encoder">json.encoder</a>
  &#8226;   <a href="#json.scanner">json.scanner</a>
- &#8226;   <a href="#level_manager">level_manager</a>
  &#8226;   <a href="#numpy.__config__">numpy.__config__</a>
  &#8226;   <a href="#numpy.testing._private.utils">numpy.testing._private.utils</a>
  &#8226;   <a href="#setuptools._vendor.importlib_metadata">setuptools._vendor.importlib_metadata</a>
  &#8226;   <a href="#setuptools.config._validate_pyproject.error_reporting">setuptools.config._validate_pyproject.error_reporting</a>
  &#8226;   <a href="#setuptools.msvc">setuptools.msvc</a>
+ &#8226;   <a href="#shop.shop_manager">shop.shop_manager</a>
  &#8226;   <a href="#threadpoolctl">threadpoolctl</a>
 
   </div>
@@ -9954,28 +10393,6 @@ imported by:
  &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#rlcompleter">rlcompleter</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="level_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/level_manager.py" type="text/plain"><tt>level_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#datetime">datetime</a>
- &#8226;   <a href="#features_manager">features_manager</a>
- &#8226;   <a href="#json">json</a>
- &#8226;   <a href="#os">os</a>
- &#8226;   <a href="#trophy">trophy</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#game_state_manager">game_state_manager</a>
- &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
 
   </div>
 
@@ -10136,10 +10553,18 @@ imported by:
 imported by:
     <a href="#_pydatetime">_pydatetime</a>
  &#8226;   <a href="#_pydecimal">_pydecimal</a>
- &#8226;   <a href="#animation_manager">animation_manager</a>
+ &#8226;   <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#animation.plant_flying">animation.plant_flying</a>
+ &#8226;   <a href="#animation.trophy">animation.trophy</a>
  &#8226;   <a href="#asyncio.tasks">asyncio.tasks</a>
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
- &#8226;   <a href="#bullets">bullets</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#bullets.dandelion_seed">bullets.dandelion_seed</a>
+ &#8226;   <a href="#bullets.ice_bullet">bullets.ice_bullet</a>
+ &#8226;   <a href="#bullets.melon_bullet">bullets.melon_bullet</a>
+ &#8226;   <a href="#bullets.moon_bullet">bullets.moon_bullet</a>
+ &#8226;   <a href="#bullets.psychedelic_bullet">bullets.psychedelic_bullet</a>
+ &#8226;   <a href="#bullets.spike_bullet">bullets.spike_bullet</a>
  &#8226;   <a href="#fractions">fractions</a>
  &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#numpy._core._internal">numpy._core._internal</a>
@@ -10148,16 +10573,26 @@ imported by:
  &#8226;   <a href="#numpy.f2py.symbolic">numpy.f2py.symbolic</a>
  &#8226;   <a href="#numpy.lib">numpy.lib</a>
  &#8226;   <a href="#numpy.lib._index_tricks_impl">numpy.lib._index_tricks_impl</a>
- &#8226;   <a href="#plant_animation">plant_animation</a>
- &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+ &#8226;   <a href="#plants.lightning_flower">plants.lightning_flower</a>
+ &#8226;   <a href="#plants.moon_flower">plants.moon_flower</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
  &#8226;   <a href="#random">random</a>
  &#8226;   <a href="#selectors">selectors</a>
  &#8226;   <a href="#setuptools._vendor.more_itertools.more">setuptools._vendor.more_itertools.more</a>
  &#8226;   <a href="#setuptools._vendor.more_itertools.recipes">setuptools._vendor.more_itertools.recipes</a>
  &#8226;   <a href="#statistics">statistics</a>
- &#8226;   <a href="#trophy">trophy</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
  &#8226;   <a href="#urllib.parse">urllib.parse</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+ &#8226;   <a href="#zombies.effects">zombies.effects</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
 
   </div>
 
@@ -17930,7 +18365,6 @@ imported by:
  &#8226;   <a href="#asyncio.selector_events">asyncio.selector_events</a>
  &#8226;   <a href="#asyncio.unix_events">asyncio.unix_events</a>
  &#8226;   <a href="#asyncio.windows_utils">asyncio.windows_utils</a>
- &#8226;   <a href="#audio_manager">audio_manager</a>
  &#8226;   <a href="#bdb">bdb</a>
  &#8226;   <a href="#bz2">bz2</a>
  &#8226;   <a href="#charset_normalizer.api">charset_normalizer.api</a>
@@ -17938,16 +18372,18 @@ imported by:
  &#8226;   <a href="#concurrent.futures.thread">concurrent.futures.thread</a>
  &#8226;   <a href="#configparser">configparser</a>
  &#8226;   <a href="#contextlib">contextlib</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
  &#8226;   <a href="#ctypes">ctypes</a>
  &#8226;   <a href="#ctypes._aix">ctypes._aix</a>
  &#8226;   <a href="#ctypes.macholib.dyld">ctypes.macholib.dyld</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
  &#8226;   <a href="#curses">curses</a>
+ &#8226;   <a href="#database.game_database">database.game_database</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
  &#8226;   <a href="#doctest">doctest</a>
  &#8226;   <a href="#email.utils">email.utils</a>
  &#8226;   <a href="#fileinput">fileinput</a>
  &#8226;   <a href="#fnmatch">fnmatch</a>
- &#8226;   <a href="#game_database">game_database</a>
  &#8226;   <a href="#genericpath">genericpath</a>
  &#8226;   <a href="#getopt">getopt</a>
  &#8226;   <a href="#getpass">getpass</a>
@@ -17961,7 +18397,6 @@ imported by:
  &#8226;   <a href="#importlib.resources._common">importlib.resources._common</a>
  &#8226;   <a href="#importlib.resources.abc">importlib.resources.abc</a>
  &#8226;   <a href="#inspect">inspect</a>
- &#8226;   <a href="#level_manager">level_manager</a>
  &#8226;   <a href="#linecache">linecache</a>
  &#8226;   <a href="#locale">locale</a>
  &#8226;   <a href="#logging">logging</a>
@@ -18039,6 +18474,8 @@ imported by:
  &#8226;   <a href="#pyi_rth_pkgres.py">pyi_rth_pkgres.py</a>
  &#8226;   <a href="#pyi_rth_setuptools.py">pyi_rth_setuptools.py</a>
  &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#rsc_mng.audio_manager">rsc_mng.audio_manager</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
  &#8226;   <a href="#runpy">runpy</a>
  &#8226;   <a href="#setuptools">setuptools</a>
  &#8226;   <a href="#setuptools._core_metadata">setuptools._core_metadata</a>
@@ -18098,6 +18535,8 @@ imported by:
  &#8226;   <a href="#setuptools.warnings">setuptools.warnings</a>
  &#8226;   <a href="#setuptools.wheel">setuptools.wheel</a>
  &#8226;   <a href="#shlex">shlex</a>
+ &#8226;   <a href="#shop.cart_manager">shop.cart_manager</a>
+ &#8226;   <a href="#shop.shop_manager">shop.shop_manager</a>
  &#8226;   <a href="#shutil">shutil</a>
  &#8226;   <a href="#site">site</a>
  &#8226;   <a href="#socket">socket</a>
@@ -18109,6 +18548,9 @@ imported by:
  &#8226;   <a href="#tempfile">tempfile</a>
  &#8226;   <a href="#threading">threading</a>
  &#8226;   <a href="#threadpoolctl">threadpoolctl</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
  &#8226;   <a href="#unittest.loader">unittest.loader</a>
  &#8226;   <a href="#unittest.main">unittest.main</a>
  &#8226;   <a href="#urllib.request">urllib.request</a>
@@ -18739,15 +19181,18 @@ imported by:
 
 <div class="node">
   <a name="performance"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/performance.py" type="text/plain"><tt>performance</tt></a>
+  <a target="code" href="///D:/pycharm/pvz/performance.py" type="text/plain"><tt>performance</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#pygame">pygame</a>
+    <a href="#collections">collections</a>
+ &#8226;   <a href="#gc">gc</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#time">time</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#game_logic">game_logic</a>
+    <a href="#core.game_logic">core.game_logic</a>
  &#8226;   <a href="#main.py">main.py</a>
 
   </div>
@@ -18891,56 +19336,417 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="plant_animation"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/plant_animation.py" type="text/plain"><tt>plant_animation</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#math">math</a>
- &#8226;   <a href="#pygame">pygame</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
- &#8226;   <a href="#plant_selection_manager">plant_selection_manager</a>
-
-  </div>
-
-</div>
-
-<div class="node">
-  <a name="plant_selection_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/plant_selection_manager.py" type="text/plain"><tt>plant_selection_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#cards_manager">cards_manager</a>
- &#8226;   <a href="#constants">constants</a>
- &#8226;   <a href="#plant_animation">plant_animation</a>
- &#8226;   <a href="#pygame">pygame</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="plants"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/plants.py" type="text/plain"><tt>plants</tt></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/__init__.py" type="text/plain"><tt>plants</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.cattail">plants.cattail</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+ &#8226;   <a href="#plants.dandelion">plants.dandelion</a>
+ &#8226;   <a href="#plants.ice_cactus">plants.ice_cactus</a>
+ &#8226;   <a href="#plants.lightning_flower">plants.lightning_flower</a>
+ &#8226;   <a href="#plants.luker">plants.luker</a>
+ &#8226;   <a href="#plants.melon_pult">plants.melon_pult</a>
+ &#8226;   <a href="#plants.moon_flower">plants.moon_flower</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
+ &#8226;   <a href="#plants.shooter">plants.shooter</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#plants.sun_shroom">plants.sun_shroom</a>
+ &#8226;   <a href="#plants.sunflower">plants.sunflower</a>
+ &#8226;   <a href="#plants.wall_nut">plants.wall_nut</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.cattail">plants.cattail</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+ &#8226;   <a href="#plants.dandelion">plants.dandelion</a>
+ &#8226;   <a href="#plants.ice_cactus">plants.ice_cactus</a>
+ &#8226;   <a href="#plants.lightning_flower">plants.lightning_flower</a>
+ &#8226;   <a href="#plants.luker">plants.luker</a>
+ &#8226;   <a href="#plants.melon_pult">plants.melon_pult</a>
+ &#8226;   <a href="#plants.moon_flower">plants.moon_flower</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
+ &#8226;   <a href="#plants.shooter">plants.shooter</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#plants.sun_shroom">plants.sun_shroom</a>
+ &#8226;   <a href="#plants.sunflower">plants.sunflower</a>
+ &#8226;   <a href="#plants.wall_nut">plants.wall_nut</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.base_plant"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/base_plant.py" type="text/plain"><tt>plants.base_plant</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
 imports:
-    <a href="#math">math</a>
+    <a href="#plants">plants</a>
  &#8226;   <a href="#pygame">pygame</a>
  &#8226;   <a href="#random">random</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#game_logic">game_logic</a>
+    <a href="#main.py">main.py</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#plants.sun_shroom">plants.sun_shroom</a>
+ &#8226;   <a href="#plants.sunflower">plants.sunflower</a>
+ &#8226;   <a href="#plants.wall_nut">plants.wall_nut</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.cattail"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/cattail.py" type="text/plain"><tt>plants.cattail</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.cherry_bomb"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/cherry_bomb.py" type="text/plain"><tt>plants.cherry_bomb</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.cucumber"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/cucumber.py" type="text/plain"><tt>plants.cucumber</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.dandelion"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/dandelion.py" type="text/plain"><tt>plants.dandelion</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.ice_cactus"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/ice_cactus.py" type="text/plain"><tt>plants.ice_cactus</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.lightning_flower"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/lightning_flower.py" type="text/plain"><tt>plants.lightning_flower</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.luker"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/luker.py" type="text/plain"><tt>plants.luker</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.melon_pult"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/melon_pult.py" type="text/plain"><tt>plants.melon_pult</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.moon_flower"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/moon_flower.py" type="text/plain"><tt>plants.moon_flower</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.particles"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/particles.py" type="text/plain"><tt>plants.particles</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.plant_registry"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/plant_registry.py" type="text/plain"><tt>plants.plant_registry</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#animation.plant_flying">animation.plant_flying</a>
  &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+ &#8226;   <a href="#utils">utils</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.psychedelic_pitcher"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/psychedelic_pitcher.py" type="text/plain"><tt>plants.psychedelic_pitcher</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#bullets">bullets</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.shooter"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/shooter.py" type="text/plain"><tt>plants.shooter</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.shooter_base"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/shooter_base.py" type="text/plain"><tt>plants.shooter_base</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#random">random</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.cattail">plants.cattail</a>
+ &#8226;   <a href="#plants.dandelion">plants.dandelion</a>
+ &#8226;   <a href="#plants.ice_cactus">plants.ice_cactus</a>
+ &#8226;   <a href="#plants.lightning_flower">plants.lightning_flower</a>
+ &#8226;   <a href="#plants.luker">plants.luker</a>
+ &#8226;   <a href="#plants.melon_pult">plants.melon_pult</a>
+ &#8226;   <a href="#plants.moon_flower">plants.moon_flower</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
+ &#8226;   <a href="#plants.shooter">plants.shooter</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.sun_shroom"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/sun_shroom.py" type="text/plain"><tt>plants.sun_shroom</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.sunflower"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/sunflower.py" type="text/plain"><tt>plants.sunflower</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="plants.wall_nut"></a>
+  <a target="code" href="///D:/pycharm/pvz/plants/wall_nut.py" type="text/plain"><tt>plants.wall_nut</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#plants">plants</a>
 
   </div>
 
@@ -19573,17 +20379,41 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#audio_manager">audio_manager</a>
- &#8226;   <a href="#bullets">bullets</a>
- &#8226;   <a href="#constants">constants</a>
- &#8226;   <a href="#event_handler">event_handler</a>
- &#8226;   <a href="#game_logic">game_logic</a>
- &#8226;   <a href="#game_state_manager">game_state_manager</a>
+    <a href="#animation.plant_flying">animation.plant_flying</a>
+ &#8226;   <a href="#animation.trophy">animation.trophy</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#bullets.dandelion_seed">bullets.dandelion_seed</a>
+ &#8226;   <a href="#bullets.ice_bullet">bullets.ice_bullet</a>
+ &#8226;   <a href="#bullets.melon_bullet">bullets.melon_bullet</a>
+ &#8226;   <a href="#bullets.moon_bullet">bullets.moon_bullet</a>
+ &#8226;   <a href="#bullets.pea_bullet">bullets.pea_bullet</a>
+ &#8226;   <a href="#bullets.psychedelic_bullet">bullets.psychedelic_bullet</a>
+ &#8226;   <a href="#bullets.spike_bullet">bullets.spike_bullet</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#core.game_state_manager">core.game_state_manager</a>
+ &#8226;   <a href="#database.game_database">database.game_database</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
  &#8226;   <a href="#main.py">main.py</a>
  &#8226;   <a href="#performance">performance</a>
- &#8226;   <a href="#plant_animation">plant_animation</a>
- &#8226;   <a href="#plant_selection_manager">plant_selection_manager</a>
- &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.cattail">plants.cattail</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+ &#8226;   <a href="#plants.dandelion">plants.dandelion</a>
+ &#8226;   <a href="#plants.ice_cactus">plants.ice_cactus</a>
+ &#8226;   <a href="#plants.lightning_flower">plants.lightning_flower</a>
+ &#8226;   <a href="#plants.luker">plants.luker</a>
+ &#8226;   <a href="#plants.melon_pult">plants.melon_pult</a>
+ &#8226;   <a href="#plants.moon_flower">plants.moon_flower</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#plants.psychedelic_pitcher">plants.psychedelic_pitcher</a>
+ &#8226;   <a href="#plants.shooter">plants.shooter</a>
+ &#8226;   <a href="#plants.sun_shroom">plants.sun_shroom</a>
+ &#8226;   <a href="#plants.sunflower">plants.sunflower</a>
+ &#8226;   <a href="#plants.wall_nut">plants.wall_nut</a>
  &#8226;   <a href="#pygame">pygame</a>
  &#8226;   <a href="#pygame._common">pygame._common</a>
  &#8226;   <a href="#pygame._freetype">pygame._freetype</a>
@@ -19625,11 +20455,23 @@ imported by:
  &#8226;   <a href="#pygame.time">pygame.time</a>
  &#8226;   <a href="#pygame.transform">pygame.transform</a>
  &#8226;   <a href="#pygame.version">pygame.version</a>
- &#8226;   <a href="#renderer_manager">renderer_manager</a>
- &#8226;   <a href="#resource_loader">resource_loader</a>
- &#8226;   <a href="#trophy">trophy</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
- &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#rsc_mng.audio_manager">rsc_mng.audio_manager</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
+ &#8226;   <a href="#shop.cart_manager">shop.cart_manager</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+ &#8226;   <a href="#utils">utils</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+ &#8226;   <a href="#zombies.effects">zombies.effects</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.giant_zombie">zombies.giant_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+ &#8226;   <a href="#zombies.normal_zombie">zombies.normal_zombie</a>
 
   </div>
 
@@ -20492,21 +21334,40 @@ imports:
   </div>
   <div class="import">
 imported by:
-    <a href="#audio_manager">audio_manager</a>
- &#8226;   <a href="#bullets">bullets</a>
+    <a href="#animation.trophy">animation.trophy</a>
+ &#8226;   <a href="#bullets.base_bullet">bullets.base_bullet</a>
+ &#8226;   <a href="#bullets.dandelion_seed">bullets.dandelion_seed</a>
+ &#8226;   <a href="#bullets.ice_bullet">bullets.ice_bullet</a>
+ &#8226;   <a href="#bullets.melon_bullet">bullets.melon_bullet</a>
+ &#8226;   <a href="#bullets.psychedelic_bullet">bullets.psychedelic_bullet</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
  &#8226;   <a href="#email.generator">email.generator</a>
  &#8226;   <a href="#email.utils">email.utils</a>
- &#8226;   <a href="#game_logic">game_logic</a>
  &#8226;   <a href="#main.py">main.py</a>
- &#8226;   <a href="#plants">plants</a>
+ &#8226;   <a href="#plants.base_plant">plants.base_plant</a>
+ &#8226;   <a href="#plants.cherry_bomb">plants.cherry_bomb</a>
+ &#8226;   <a href="#plants.cucumber">plants.cucumber</a>
+ &#8226;   <a href="#plants.dandelion">plants.dandelion</a>
+ &#8226;   <a href="#plants.lightning_flower">plants.lightning_flower</a>
+ &#8226;   <a href="#plants.moon_flower">plants.moon_flower</a>
+ &#8226;   <a href="#plants.particles">plants.particles</a>
+ &#8226;   <a href="#plants.shooter_base">plants.shooter_base</a>
+ &#8226;   <a href="#rsc_mng.audio_manager">rsc_mng.audio_manager</a>
  &#8226;   <a href="#secrets">secrets</a>
  &#8226;   <a href="#setuptools._vendor.more_itertools.more">setuptools._vendor.more_itertools.more</a>
  &#8226;   <a href="#setuptools._vendor.more_itertools.recipes">setuptools._vendor.more_itertools.recipes</a>
  &#8226;   <a href="#statistics">statistics</a>
  &#8226;   <a href="#tempfile">tempfile</a>
- &#8226;   <a href="#trophy">trophy</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
- &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+ &#8226;   <a href="#zombies.effects">zombies.effects</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
 
   </div>
 
@@ -20796,25 +21657,6 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="renderer_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/renderer_manager.py" type="text/plain"><tt>renderer_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#cards_manager">cards_manager</a>
- &#8226;   <a href="#constants">constants</a>
- &#8226;   <a href="#pygame">pygame</a>
- &#8226;   <a href="#ui_manager">ui_manager</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="reprlib"></a>
   <a target="code" href="///D:/Python/Lib/reprlib.py" type="text/plain"><tt>reprlib</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -20852,23 +21694,6 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="resource_loader"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/resource_loader.py" type="text/plain"><tt>resource_loader</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#constants">constants</a>
- &#8226;   <a href="#pygame">pygame</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="rlcompleter"></a>
   <a target="code" href="///D:/Python/Lib/rlcompleter.py" type="text/plain"><tt>rlcompleter</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -20887,6 +21712,61 @@ imported by:
     <a href="#_pyrepl.readline">_pyrepl.readline</a>
  &#8226;   <a href="#pdb">pdb</a>
  &#8226;   <a href="#site">site</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="rsc_mng"></a>
+  <a target="code" href="-" type="text/plain"><tt>rsc_mng</tt></a>
+<span class="moduletype">NamespacePackage</span>  <div class="import">
+imported by:
+    <a href="#main.py">main.py</a>
+ &#8226;   <a href="#rsc_mng.audio_manager">rsc_mng.audio_manager</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="rsc_mng.audio_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/rsc_mng/audio_manager.py" type="text/plain"><tt>rsc_mng.audio_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#os">os</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#rsc_mng">rsc_mng</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#main.py">main.py</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="rsc_mng.resource_loader"></a>
+  <a target="code" href="///D:/pycharm/pvz/rsc_mng/resource_loader.py" type="text/plain"><tt>rsc_mng.resource_loader</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#rsc_mng">rsc_mng</a>
+ &#8226;   <a href="#sys">sys</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#main.py">main.py</a>
 
   </div>
 
@@ -25138,6 +26018,63 @@ imported by:
 </div>
 
 <div class="node">
+  <a name="shop"></a>
+  <a target="code" href="///D:/pycharm/pvz/shop/__init__.py" type="text/plain"><tt>shop</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
+imports:
+    <a href="#shop.cart_manager">shop.cart_manager</a>
+ &#8226;   <a href="#shop.shop_manager">shop.shop_manager</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main.py">main.py</a>
+ &#8226;   <a href="#shop.cart_manager">shop.cart_manager</a>
+ &#8226;   <a href="#shop.shop_manager">shop.shop_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="shop.cart_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/shop/cart_manager.py" type="text/plain"><tt>shop.cart_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#shop">shop</a>
+ &#8226;   <a href="#sys">sys</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#shop">shop</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="shop.shop_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/shop/shop_manager.py" type="text/plain"><tt>shop.shop_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#json">json</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#shop">shop</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#shop">shop</a>
+
+  </div>
+
+</div>
+
+<div class="node">
   <a name="shutil"></a>
   <a target="code" href="///D:/Python/Lib/shutil.py" type="text/plain"><tt>shutil</tt></a>
 <span class="moduletype">SourceModule</span>  <div class="import">
@@ -25689,6 +26626,7 @@ imported by:
  &#8226;   <a href="#ctypes._endian">ctypes._endian</a>
  &#8226;   <a href="#ctypes.util">ctypes.util</a>
  &#8226;   <a href="#curses">curses</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
  &#8226;   <a href="#dataclasses">dataclasses</a>
  &#8226;   <a href="#decimal">decimal</a>
  &#8226;   <a href="#dis">dis</a>
@@ -25801,6 +26739,7 @@ imported by:
  &#8226;   <a href="#pyi_rth_pkgres.py">pyi_rth_pkgres.py</a>
  &#8226;   <a href="#quopri">quopri</a>
  &#8226;   <a href="#re._compiler">re._compiler</a>
+ &#8226;   <a href="#rsc_mng.resource_loader">rsc_mng.resource_loader</a>
  &#8226;   <a href="#runpy">runpy</a>
  &#8226;   <a href="#selectors">selectors</a>
  &#8226;   <a href="#setuptools">setuptools</a>
@@ -25856,6 +26795,7 @@ imported by:
  &#8226;   <a href="#setuptools.monkey">setuptools.monkey</a>
  &#8226;   <a href="#setuptools.unicode_utils">setuptools.unicode_utils</a>
  &#8226;   <a href="#shlex">shlex</a>
+ &#8226;   <a href="#shop.cart_manager">shop.cart_manager</a>
  &#8226;   <a href="#shutil">shutil</a>
  &#8226;   <a href="#site">site</a>
  &#8226;   <a href="#socket">socket</a>
@@ -25873,6 +26813,9 @@ imported by:
  &#8226;   <a href="#types">types</a>
  &#8226;   <a href="#typing">typing</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
  &#8226;   <a href="#unittest.case">unittest.case</a>
  &#8226;   <a href="#unittest.loader">unittest.loader</a>
  &#8226;   <a href="#unittest.main">unittest.main</a>
@@ -26186,11 +27129,11 @@ imported by:
  &#8226;   <a href="#asyncio.base_events">asyncio.base_events</a>
  &#8226;   <a href="#asyncio.windows_events">asyncio.windows_events</a>
  &#8226;   <a href="#concurrent.futures._base">concurrent.futures._base</a>
+ &#8226;   <a href="#database.game_database">database.game_database</a>
  &#8226;   <a href="#datetime">datetime</a>
  &#8226;   <a href="#email._parseaddr">email._parseaddr</a>
  &#8226;   <a href="#email.generator">email.generator</a>
  &#8226;   <a href="#email.utils">email.utils</a>
- &#8226;   <a href="#game_database">game_database</a>
  &#8226;   <a href="#gc">gc</a>
  &#8226;   <a href="#gzip">gzip</a>
  &#8226;   <a href="#http.cookiejar">http.cookiejar</a>
@@ -26203,6 +27146,7 @@ imported by:
  &#8226;   <a href="#multiprocessing.synchronize">multiprocessing.synchronize</a>
  &#8226;   <a href="#numpy.f2py.rules">numpy.f2py.rules</a>
  &#8226;   <a href="#numpy.testing._private.utils">numpy.testing._private.utils</a>
+ &#8226;   <a href="#performance">performance</a>
  &#8226;   <a href="#pkg_resources">pkg_resources</a>
  &#8226;   <a href="#psutil">psutil</a>
  &#8226;   <a href="#psutil._pswindows">psutil._pswindows</a>
@@ -26226,6 +27170,7 @@ imported by:
  &#8226;   <a href="#xmlrpc.client">xmlrpc.client</a>
  &#8226;   <a href="#zipfile">zipfile</a>
  &#8226;   <a href="#zipimport">zipimport</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
 
   </div>
 
@@ -26452,25 +27397,6 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="trophy"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/trophy.py" type="text/plain"><tt>trophy</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
-imports:
-    <a href="#math">math</a>
- &#8226;   <a href="#pygame">pygame</a>
- &#8226;   <a href="#random">random</a>
-
-  </div>
-  <div class="import">
-imported by:
-    <a href="#level_manager">level_manager</a>
- &#8226;   <a href="#main.py">main.py</a>
-
-  </div>
-
-</div>
-
-<div class="node">
   <a name="trove_classifiers"></a>
   <a target="code" href="" type="text/plain"><tt>trove_classifiers</tt></a>
 <span class="moduletype">MissingModule</span>  <div class="import">
@@ -26616,13 +27542,13 @@ imported by:
  &#8226;   <a href="#_pyrepl.unix_console">_pyrepl.unix_console</a>
  &#8226;   <a href="#_pyrepl.windows_console">_pyrepl.windows_console</a>
  &#8226;   <a href="#asyncio.timeouts">asyncio.timeouts</a>
- &#8226;   <a href="#cards_manager">cards_manager</a>
  &#8226;   <a href="#charset_normalizer.api">charset_normalizer.api</a>
  &#8226;   <a href="#charset_normalizer.cd">charset_normalizer.cd</a>
  &#8226;   <a href="#charset_normalizer.legacy">charset_normalizer.legacy</a>
  &#8226;   <a href="#charset_normalizer.models">charset_normalizer.models</a>
  &#8226;   <a href="#charset_normalizer.utils">charset_normalizer.utils</a>
- &#8226;   <a href="#features_manager">features_manager</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.features_manager">core.features_manager</a>
  &#8226;   <a href="#functools">functools</a>
  &#8226;   <a href="#importlib.metadata">importlib.metadata</a>
  &#8226;   <a href="#importlib.metadata._meta">importlib.metadata._meta</a>
@@ -26775,6 +27701,7 @@ imported by:
  &#8226;   <a href="#tomllib._re">tomllib._re</a>
  &#8226;   <a href="#tomllib._types">tomllib._types</a>
  &#8226;   <a href="#typing_extensions">typing_extensions</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
 
   </div>
 
@@ -26838,23 +27765,169 @@ imported by:
 </div>
 
 <div class="node">
-  <a name="ui_manager"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/ui_manager.py" type="text/plain"><tt>ui_manager</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
+  <a name="ui"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/__init__.py" type="text/plain"><tt>ui</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
 imports:
-    <a href="#animation_manager">animation_manager</a>
- &#8226;   <a href="#cards_manager">cards_manager</a>
- &#8226;   <a href="#constants">constants</a>
- &#8226;   <a href="#level_manager">level_manager</a>
- &#8226;   <a href="#math">math</a>
- &#8226;   <a href="#pygame">pygame</a>
- &#8226;   <a href="#random">random</a>
+    <a href="#ui">ui</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#event_handler">event_handler</a>
- &#8226;   <a href="#renderer_manager">renderer_manager</a>
+    <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#ui">ui</a>
+ &#8226;   <a href="#ui.conveyor_belt_manager">ui.conveyor_belt_manager</a>
+ &#8226;   <a href="#ui.plant_selection_manager">ui.plant_selection_manager</a>
+ &#8226;   <a href="#ui.portal_manager">ui.portal_manager</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
+ &#8226;   <a href="#ui.seed_rain_manager">ui.seed_rain_manager</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="ui.conveyor_belt_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/conveyor_belt_manager.py" type="text/plain"><tt>ui.conveyor_belt_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="ui.plant_selection_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/plant_selection_manager.py" type="text/plain"><tt>ui.plant_selection_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#ui">ui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="ui.portal_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/portal_manager.py" type="text/plain"><tt>ui.portal_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#typing">typing</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="ui.renderer_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/renderer_manager.py" type="text/plain"><tt>ui.renderer_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#constants">constants</a>
+ &#8226;   <a href="#core.cards_manager">core.cards_manager</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#ui">ui</a>
+ &#8226;   <a href="#ui.ui_manager">ui.ui_manager</a>
+ &#8226;   <a href="#utils">utils</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#ui">ui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="ui.seed_rain_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/seed_rain_manager.py" type="text/plain"><tt>ui.seed_rain_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="ui.ui_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/ui/ui_manager.py" type="text/plain"><tt>ui.ui_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#animation">animation</a>
+ &#8226;   <a href="#animation.effects">animation.effects</a>
+ &#8226;   <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#core.level_manager">core.level_manager</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#os">os</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#sys">sys</a>
+ &#8226;   <a href="#ui">ui</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#ui">ui</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
 
   </div>
 
@@ -27324,6 +28397,27 @@ imported by:
 <span class="moduletype">MissingModule</span>  <div class="import">
 imported by:
     <a href="#site">site</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="utils"></a>
+  <a target="code" href="///D:/pycharm/pvz/utils.py" type="text/plain"><tt>utils</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#plants.plant_registry">plants.plant_registry</a>
+ &#8226;   <a href="#pygame">pygame</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.event_handler">core.event_handler</a>
+ &#8226;   <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#ui.renderer_manager">ui.renderer_manager</a>
 
   </div>
 
@@ -28396,17 +29490,205 @@ imported by:
 
 <div class="node">
   <a name="zombies"></a>
-  <a target="code" href="///D:/pycharm/%E8%87%AA%E5%88%B6%E7%89%88pvz/zombies.py" type="text/plain"><tt>zombies</tt></a>
-<span class="moduletype">SourceModule</span>  <div class="import">
+  <a target="code" href="///D:/pycharm/pvz/zombies/__init__.py" type="text/plain"><tt>zombies</tt></a>
+<span class="moduletype">Package</span>  <div class="import">
 imports:
-    <a href="#pygame">pygame</a>
- &#8226;   <a href="#random">random</a>
+    <a href="#zombies.base_zombie">zombies.base_zombie</a>
+ &#8226;   <a href="#zombies.effects">zombies.effects</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.giant_zombie">zombies.giant_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+ &#8226;   <a href="#zombies.normal_zombie">zombies.normal_zombie</a>
+ &#8226;   <a href="#zombies.zombie_factory">zombies.zombie_factory</a>
 
   </div>
   <div class="import">
 imported by:
-    <a href="#game_logic">game_logic</a>
+    <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
  &#8226;   <a href="#main.py">main.py</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+ &#8226;   <a href="#zombies.effects">zombies.effects</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.giant_zombie">zombies.giant_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+ &#8226;   <a href="#zombies.normal_zombie">zombies.normal_zombie</a>
+ &#8226;   <a href="#zombies.zombie_factory">zombies.zombie_factory</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.base_zombie"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/base_zombie.py" type="text/plain"><tt>zombies.base_zombie</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.effects">zombies.effects</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#main.py">main.py</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.giant_zombie">zombies.giant_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.normal_zombie">zombies.normal_zombie</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.effects"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/effects.py" type="text/plain"><tt>zombies.effects</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#zombies">zombies</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.exploding_zombie"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/exploding_zombie.py" type="text/plain"><tt>zombies.exploding_zombie</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.zombie_factory">zombies.zombie_factory</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.giant_zombie"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/giant_zombie.py" type="text/plain"><tt>zombies.giant_zombie</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#pygame">pygame</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.zombie_factory">zombies.zombie_factory</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.ice_car_zombie"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/ice_car_zombie.py" type="text/plain"><tt>zombies.ice_car_zombie</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+ &#8226;   <a href="#zombies.ice_trail_manager">zombies.ice_trail_manager</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.zombie_factory">zombies.zombie_factory</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.ice_trail_manager"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/ice_trail_manager.py" type="text/plain"><tt>zombies.ice_trail_manager</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#core.constants">core.constants</a>
+ &#8226;   <a href="#math">math</a>
+ &#8226;   <a href="#pygame">pygame</a>
+ &#8226;   <a href="#random">random</a>
+ &#8226;   <a href="#time">time</a>
+ &#8226;   <a href="#zombies">zombies</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#core.game_logic">core.game_logic</a>
+ &#8226;   <a href="#database.save_manager">database.save_manager</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.normal_zombie"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/normal_zombie.py" type="text/plain"><tt>zombies.normal_zombie</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#pygame">pygame</a>
+ &#8226;   <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.base_zombie">zombies.base_zombie</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.zombie_factory">zombies.zombie_factory</a>
+
+  </div>
+
+</div>
+
+<div class="node">
+  <a name="zombies.zombie_factory"></a>
+  <a target="code" href="///D:/pycharm/pvz/zombies/zombie_factory.py" type="text/plain"><tt>zombies.zombie_factory</tt></a>
+<span class="moduletype">SourceModule</span>  <div class="import">
+imports:
+    <a href="#zombies">zombies</a>
+ &#8226;   <a href="#zombies.exploding_zombie">zombies.exploding_zombie</a>
+ &#8226;   <a href="#zombies.giant_zombie">zombies.giant_zombie</a>
+ &#8226;   <a href="#zombies.ice_car_zombie">zombies.ice_car_zombie</a>
+ &#8226;   <a href="#zombies.normal_zombie">zombies.normal_zombie</a>
+
+  </div>
+  <div class="import">
+imported by:
+    <a href="#zombies">zombies</a>
 
   </div>
 

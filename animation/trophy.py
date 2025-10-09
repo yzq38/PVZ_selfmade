@@ -19,7 +19,7 @@ class Trophy:
         self.explosion_started = False
         self.explosion_complete = False
         self.fade_timer = 0
-        self.fade_duration = 120  # 2秒淡出
+        self.fade_duration = 110
         self.image = image
 
         # 增强闪烁效果相关属性

@@ -3,6 +3,8 @@
 """
 from .normal_zombie import NormalZombie
 from .giant_zombie import GiantZombie
+from .exploding_zombie import ExplodingZombie
+from .ice_car_zombie import IceCarZombie
 
 
 class ZombieFactory:
@@ -15,7 +17,7 @@ class ZombieFactory:
 
         Args:
             row: 僵尸所在行
-            zombie_type: 僵尸类型 ("normal" 或 "giant")
+            zombie_type: 僵尸类型 ("normal", "giant" 或 "exploding")
             **kwargs: 其他僵尸参数
 
         Returns:
@@ -23,8 +25,12 @@ class ZombieFactory:
         """
         if zombie_type == "giant":
             return GiantZombie(row, **kwargs)
+        elif zombie_type == "exploding":
+            return ExplodingZombie(row, **kwargs)
         elif zombie_type == "normal":
             return NormalZombie(row, **kwargs)
+        elif zombie_type == "ice_car":
+            return IceCarZombie(row, **kwargs)
         else:
             # 默认创建普通僵尸
             return NormalZombie(row, **kwargs)
@@ -56,7 +62,7 @@ def create_zombie(row, zombie_type="normal", **kwargs):
 
     Args:
         row: 僵尸所在行
-        zombie_type: 僵尸类型 ("normal" 或 "giant")
+        zombie_type: 僵尸类型 ("normal", "giant" 或 "exploding")
         **kwargs: 其他僵尸参数
 
     Returns:
@@ -68,5 +74,8 @@ def create_zombie(row, zombie_type="normal", **kwargs):
 
         # 创建巨人僵尸
         zombie2 = create_zombie(1, "giant", is_fast=True)
+
+        # 创建爆炸僵尸
+        zombie3 = create_zombie(2, "exploding", wave_mode=True)
     """
     return ZombieFactory.create_zombie(row, zombie_type, **kwargs)

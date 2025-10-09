@@ -1,7 +1,7 @@
 {
   "metadata": {
     "version": "2.0",
-    "last_modified": "2025-09-17T10:49:12.262541",
+    "last_modified": "2025-09-23T09:56:58.978344",
     "description": "植物大战僵尸简易版关卡配置 - 简化版"
   },
   "default_config": {
@@ -159,32 +159,32 @@
       "fast_zombie_multiplier": 2.6
     },
     "22": {
-      "name": "22.后院危机1",
-      "max_waves": 5,
-      "initial_sun": 200,
+      "name": "22.暗夜危机1",
+      "max_waves": 4,
+      "initial_sun": 100,
       "zombie_armor_prob": 0.3,
       "fast_zombie_multiplier": 2.5
     },
     "23": {
-      "name": "23.后院危机2",
-      "max_waves": 5,
-      "initial_sun": 200,
-      "zombie_armor_prob": 0.3,
-      "fast_zombie_multiplier": 2.5
+      "name": "23.暗夜危机2",
+      "max_waves": 4,
+      "initial_sun": 100,
+      "zombie_armor_prob": 0.4,
+      "fast_zombie_multiplier": 2.6
     },
     "24": {
-      "name": "24.后院危机3",
-      "max_waves": 5,
-      "initial_sun": 200,
-      "zombie_armor_prob": 0.3,
-      "fast_zombie_multiplier": 2.5
+      "name": "24.暗夜危机3",
+      "max_waves": 4,
+      "initial_sun": 100,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 2.7
     },
     "25": {
       "name": "25.暂时和解",
       "max_waves": 5,
       "initial_sun": 200,
       "zombie_armor_prob": 0.3,
-      "fast_zombie_multiplier": 2.5
+      "fast_zombie_multiplier": 1.2
     },
     "26": {
       "name": "26.二战",

@@ -7,7 +7,13 @@ from .shooter_base import ShooterPlant
 
 class IceCactus(ShooterPlant):
     """寒冰仙人掌：发射穿透冰弹，冻结僵尸"""
-
+    # 植物自描述信息
+    PLANT_INFO = {
+        'icon_key': 'ice_cactus_60',
+        'display_name': '寒冰仙人掌',
+        'category': 'shooter',
+        'preview_alpha': 130,
+    }
     def __init__(self, row, col, constants, images, level_manager):
         super().__init__(row, col, "ice_cactus", constants, images, level_manager, base_shoot_delay=90)
 

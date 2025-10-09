@@ -1,5 +1,6 @@
 import json
 import os
+import random
 from datetime import datetime
 from animation import Trophy
 from .features_manager import features_manager
@@ -283,7 +284,7 @@ class LevelManager:
             return feature_info.default_value
 
         return default_value
-#向日葵相关方法
+
     def get_sunflower_limit(self):
         """获取向日葵种植限制 - 更新：支持第四关特殊限制"""
         # 全局植物限制：只允许基础植物
@@ -332,7 +333,7 @@ class LevelManager:
         if limit is None:
             return ""  # 无限制时不显示
         elif limit == 0:
-            return "向日葵已禁用"
+            return ""
         else:
             return f"向日葵: {self.sunflower_count}/{limit}"
 
@@ -507,3 +508,93 @@ class LevelManager:
                     descriptions.append(f"全局设置: {name}")
 
         return descriptions
+
+    # 僵尸特性检查方法
+    def has_giant_zombies(self):
+        """检查当前关卡是否有巨人僵尸特性"""
+        # 全局巨人僵尸设置
+        if self._get_global_setting("global_giant_zombies"):
+            return True
+        return self.has_special_feature("giant_zombie_spawn")
+
+    def has_exploding_zombies(self):
+        """检查当前关卡是否有爆炸僵尸特性"""
+        # 全局爆炸僵尸设置（如果有的话）
+        if self._get_global_setting("global_exploding_zombies"):
+            return True
+        return self.has_special_feature("exploding_zombie_spawn")
+
+    def get_zombie_spawn_probabilities(self):
+        """获取各种僵尸的生成概率"""
+        probabilities = {
+            "normal": 1.0,  # 默认100%普通僵尸
+            "giant": 0.0,
+            "exploding": 0.0
+        }
+
+        # 检查是否是第20关的波次模式特殊生成率
+        if (self.current_level == 20 and self.wave_mode and
+                self.has_special_feature("high_spawn_rate_wave")):
+            # 获取特殊生成率配置
+            spawn_config = self.get_feature_value("high_spawn_rate_wave", {})
+            if spawn_config:
+                # 第20关波次模式下的特殊生成率
+                probabilities["giant"] = spawn_config.get("giant_spawn_rate", 0.35)
+                probabilities["exploding"] = spawn_config.get("exploding_spawn_rate", 0.35)
+                # 剩余50%为普通僵尸
+                probabilities["normal"] = 1.0 - probabilities["giant"] - probabilities["exploding"]
+
+
+
+            return probabilities
+
+        # 正常的生成概率逻辑
+        if self.has_exploding_zombies():
+            probabilities["exploding"] = 0.15  # 15%爆炸僵尸
+            probabilities["normal"] -= 0.15
+
+        if self.has_giant_zombies():
+            probabilities["giant"] = 0.10  # 10%巨人僵尸
+            probabilities["normal"] -= 0.10
+
+        return probabilities
+
+    def get_random_zombie_type(self):
+        """根据当前关卡特性随机返回一个僵尸类型"""
+        probabilities = self.get_zombie_spawn_probabilities()
+
+        rand = random.random()
+        cumulative = 0
+
+        for zombie_type, prob in probabilities.items():
+            cumulative += prob
+            if rand < cumulative:
+                return zombie_type
+
+        return "normal"  # 默认返回普通僵尸
+
+    def get_zombie_features_description(self):
+        """获取当前关卡的僵尸特性描述"""
+        descriptions = []
+
+        if self.has_giant_zombies():
+            descriptions.append("巨人僵尸（10%概率）")
+
+        if self.has_exploding_zombies():
+            descriptions.append("爆炸僵尸（15%概率）")
+
+        if self.has_all_fast_zombies():
+            descriptions.append("全员快速")
+
+        if self.has_special_feature("zombie_immunity"):
+            immunity_chance = self.get_feature_value("zombie_immunity", 0.05)
+            descriptions.append(f"僵尸免疫（{immunity_chance:.0%}概率）")
+
+        if self.has_special_feature("zombie_health_reduce"):
+            descriptions.append("僵尸血量减少20%")
+
+        armor_prob = self.get_zombie_armor_prob()
+        if armor_prob != 0.3:  # 如果不是默认值
+            descriptions.append(f"铁门概率: {armor_prob:.0%}")
+
+        return descriptions if descriptions else ["标准僵尸配置"]
