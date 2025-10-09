@@ -1,0 +1,2059 @@
+{
+  "completed_levels": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28
+  ],
+  "level_settings": {
+    "all_card_cooldown": false
+  },
+  "saved_game": null,
+  "saved_games": {
+    "18": {
+      "sun": 35,
+      "current_level": 18,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 0,
+      "zombies_spawned": 6,
+      "first_wave_spawned": false,
+      "card_cooldowns": {
+        "cattail": 986
+      },
+      "hammer_cooldown": 0,
+      "portal_manager_data": {
+        "switch_timer": 251,
+        "switch_interval": 1200,
+        "next_portal_id": 3,
+        "portals": [
+          {
+            "row": 1,
+            "col": 4,
+            "portal_id": 0,
+            "spawn_animation_timer": 60,
+            "despawn_animation_timer": 0,
+            "is_spawning": false,
+            "is_despawning": false,
+            "is_active": true,
+            "rotation_angle": 22
+          },
+          {
+            "row": 3,
+            "col": 6,
+            "portal_id": 2,
+            "spawn_animation_timer": 60,
+            "despawn_animation_timer": 0,
+            "is_spawning": false,
+            "is_despawning": false,
+            "is_active": true,
+            "rotation_angle": 142
+          }
+        ]
+      },
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 4
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "sunflower",
+          "cattail"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [
+        {
+          "row": 2,
+          "col": 0,
+          "plant_type": "cattail",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 3.0,
+          "current_shoot_delay": 44,
+          "had_target_last_frame": true
+        }
+      ],
+      "zombies": [
+        {
+          "row": 4,
+          "col": 3.9160000000005506,
+          "health": 30,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 4,
+          "col": 4.636000000000481,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": true,
+          "max_armor_health": 200,
+          "armor_health": 200,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 0,
+          "col": 5.9360000000003375,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 3,
+          "col": 6.656000000000258,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 2,
+          "col": 7.720000000000141,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 4,
+          "col": 8.680000000000035,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": true,
+          "max_armor_health": 200,
+          "armor_health": 200,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        }
+      ],
+      "ice_trail_manager_data": {},
+      "bullets": [
+        {
+          "row": 3.1295904164093304,
+          "col": 2.6363632660324066,
+          "bullet_type": "spike",
+          "can_penetrate": false,
+          "target_col": null,
+          "speed": 0.09,
+          "start_col": 2.6363632660324066,
+          "flight_progress": 0.0,
+          "has_landed": false,
+          "splash_applied": false,
+          "has_hit_target": false,
+          "actual_x": 2.6363632660324066,
+          "actual_y": 3.1295904164093304,
+          "direction_x": 0.8268493956590349,
+          "direction_y": 0.5624233964712784,
+          "target_direction_x": 0.8268493956590349,
+          "target_direction_y": 0.5624233964712783,
+          "retargeting_cooldown": 0,
+          "explosion_triggered": false,
+          "show_explosion": false,
+          "hit_zombies_count": 0,
+          "splash_hit_zombies_count": 0,
+          "freeze_power": 0,
+          "freeze_applied_zombies": 0,
+          "moon_rotation": 0,
+          "moon_glow_timer": 0,
+          "moon_initial_col": 2.6363632660324066,
+          "moon_wave_amplitude": 0.1,
+          "moon_wave_frequency": 0.1,
+          "psychedelic_dmg": 0,
+          "psychedelic_charm_duration": 0,
+          "psychedelic_max_height": 0,
+          "psychedelic_flight_speed": 0
+        },
+        {
+          "row": 2.0298634228766113,
+          "col": 0.6975940701332277,
+          "bullet_type": "spike",
+          "can_penetrate": false,
+          "target_col": null,
+          "speed": 0.09,
+          "start_col": 0.6975940701332277,
+          "flight_progress": 0.0,
+          "has_landed": false,
+          "splash_applied": false,
+          "has_hit_target": false,
+          "actual_x": 0.6975940701332277,
+          "actual_y": 2.0298634228766113,
+          "direction_x": 0.9792640621150305,
+          "direction_y": 0.20258799729986385,
+          "target_direction_x": 0.855192928706589,
+          "target_direction_y": 0.5183098057052817,
+          "retargeting_cooldown": 0,
+          "explosion_triggered": false,
+          "show_explosion": false,
+          "hit_zombies_count": 0,
+          "splash_hit_zombies_count": 0,
+          "freeze_power": 0,
+          "freeze_applied_zombies": 0,
+          "moon_rotation": 0,
+          "moon_glow_timer": 0,
+          "moon_initial_col": 0.6975940701332277,
+          "moon_wave_amplitude": 0.1,
+          "moon_wave_frequency": 0.1,
+          "psychedelic_dmg": 0,
+          "psychedelic_charm_duration": 0,
+          "psychedelic_max_height": 0,
+          "psychedelic_flight_speed": 0
+        }
+      ],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Uraniwa ni Zombies ga!.ogg",
+        "is_playing": true,
+        "play_time": 5.903,
+        "volume": 0.5
+      },
+      "save_time": 1758938204.8308482
+    },
+    "19": {
+      "sun": 155,
+      "current_level": 19,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 0,
+      "zombies_spawned": 0,
+      "first_wave_spawned": false,
+      "card_cooldowns": {
+        "sunflower": 44
+      },
+      "hammer_cooldown": 0,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 1,
+        "max_waves": 4
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "sunflower"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [
+        {
+          "row": 2,
+          "col": 1,
+          "plant_type": "sunflower",
+          "health": 100,
+          "max_health": 100,
+          "sun_timer": 76.0
+        }
+      ],
+      "zombies": [],
+      "ice_trail_manager_data": {},
+      "bullets": [],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Loonboon.ogg",
+        "is_playing": true,
+        "play_time": 5.377,
+        "volume": 0.5
+      },
+      "save_time": 1758935054.817014
+    },
+    "17": {
+      "sun": 15,
+      "current_level": 17,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 0,
+      "zombies_spawned": 0,
+      "first_wave_spawned": false,
+      "card_cooldowns": {
+        "ice_cactus": 536
+      },
+      "hammer_cooldown": 0,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 3
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "ice_cactus",
+          "sunflower"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [
+        {
+          "row": 2,
+          "col": 1,
+          "plant_type": "ice_cactus",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 149.0,
+          "current_shoot_delay": 95,
+          "had_target_last_frame": false
+        }
+      ],
+      "zombies": [],
+      "ice_trail_manager_data": {},
+      "bullets": [],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Kitanai Sekai.ogg",
+        "is_playing": true,
+        "play_time": 6.44,
+        "volume": 0.5
+      },
+      "save_time": 1758935094.7322001
+    },
+    "23": {
+      "sun": 100,
+      "current_level": 23,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 0,
+      "zombies_spawned": 2,
+      "first_wave_spawned": false,
+      "card_cooldowns": {},
+      "hammer_cooldown": 0,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 4
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "shooter"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [],
+      "zombies": [
+        {
+          "row": 3,
+          "col": 8.168000000000092,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 0,
+          "col": 8.888000000000012,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        }
+      ],
+      "ice_trail_manager_data": {},
+      "bullets": [],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Loonboon.ogg",
+        "is_playing": true,
+        "play_time": 15.175,
+        "volume": 0.5
+      },
+      "save_time": 1758979302.3243604
+    },
+    "20": {
+      "sun": 210,
+      "current_level": 20,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 0,
+      "zombies_spawned": 0,
+      "first_wave_spawned": false,
+      "card_cooldowns": {},
+      "hammer_cooldown": 0,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 5
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "ice_cactus"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [],
+      "zombies": [],
+      "ice_trail_manager_data": {},
+      "bullets": [],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Kitanai Sekai.ogg",
+        "is_playing": true,
+        "play_time": 5.999,
+        "volume": 0.5
+      },
+      "save_time": 1758979806.5442536
+    },
+    "24": {
+      "sun": 75,
+      "current_level": 24,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 0,
+      "zombies_spawned": 0,
+      "first_wave_spawned": false,
+      "card_cooldowns": {
+        "sun_shroom": 55
+      },
+      "hammer_cooldown": 0,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 4
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "lightning_flower",
+          "sun_shroom"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [
+        {
+          "row": 0,
+          "col": 2,
+          "plant_type": "sun_shroom",
+          "health": 100,
+          "max_health": 100
+        }
+      ],
+      "zombies": [],
+      "ice_trail_manager_data": {
+        "ice_trails": []
+      },
+      "bullets": [],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Loonboon.ogg",
+        "is_playing": true,
+        "play_time": 9.827,
+        "volume": 0.5
+      },
+      "save_time": 1759636908.5556
+    },
+    "14": {
+      "sun": 135,
+      "current_level": 14,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 1,
+      "zombies_spawned": 2,
+      "first_wave_spawned": false,
+      "card_cooldowns": {
+        "cucumber": 944
+      },
+      "hammer_cooldown": 0,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 4
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [
+          "cucumber"
+        ],
+        "plant_select_animation_complete": true
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [],
+      "conveyor_belt_data": {},
+      "cucumber_effects": {
+        "zombie_stun_timers": {
+          "2456589453024": 103
+        },
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [],
+      "zombies": [
+        {
+          "row": 0,
+          "col": 8.560000000000048,
+          "health": 150,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        }
+      ],
+      "ice_trail_manager_data": {},
+      "bullets": [],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Ultimate Battle.ogg",
+        "is_playing": true,
+        "play_time": 10.534,
+        "volume": 0.5
+      },
+      "save_time": 1758982666.211369
+    },
+    "28": {
+      "sun": 300,
+      "current_level": 28,
+      "wave_mode": false,
+      "wave_timer": 0,
+      "zombies_killed": 7,
+      "zombies_spawned": 10,
+      "first_wave_spawned": false,
+      "card_cooldowns": {},
+      "hammer_cooldown": 357,
+      "portal_manager_data": {},
+      "level_manager_state": {
+        "current_wave": 0,
+        "waves_completed": 0,
+        "zombies_in_wave": 0,
+        "zombies_defeated": 0,
+        "wave_spawned": false,
+        "all_waves_completed": false,
+        "sunflower_count": 0,
+        "max_waves": 5
+      },
+      "plant_select_state": {
+        "show_plant_select": false,
+        "selected_plants_for_game": [],
+        "plant_select_animation_complete": false
+      },
+      "cart_data": {
+        "0": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "1": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "2": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "3": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        },
+        "4": {
+          "triggered": false,
+          "removed": false,
+          "col": -0.5,
+          "active": false
+        }
+      },
+      "dandelion_seeds": [
+        {
+          "start_x": 0.017588977806109435,
+          "start_y": 1.034909489088929,
+          "current_x": 5.295499541515224,
+          "current_y": 2.973235817613745,
+          "target_x": 6.59697531197555,
+          "target_y": 4,
+          "life_time": 147,
+          "progress": 1.0,
+          "has_hit": false,
+          "rotation": 345.47315372981615,
+          "wind_amplitude": 0.47149364489546175,
+          "wind_frequency": 0.03702575522621945,
+          "drift_speed_x": 0.8427162850437571,
+          "drift_speed_y": 0.6974425152586288,
+          "rotation_speed": 2.045733018181113,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.11354517018261073,
+          "start_y": 0.9026487506314609,
+          "current_x": 6.914440606214936,
+          "current_y": 1.8003734487835097,
+          "target_x": 8.132000000000096,
+          "target_y": 2,
+          "life_time": 147,
+          "progress": 1.0,
+          "has_hit": false,
+          "rotation": 583.4652336632457,
+          "wind_amplitude": 0.3063836239357715,
+          "wind_frequency": 0.03668847358106828,
+          "drift_speed_x": 0.8709538407241321,
+          "drift_speed_y": 0.8801263300713169,
+          "rotation_speed": 2.7033592148204404,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": 0.07206571505183307,
+          "start_y": 1.1648156959043963,
+          "current_x": 8.214356924975693,
+          "current_y": 0.3981294582916197,
+          "target_x": 7.856000000000126,
+          "target_y": 0,
+          "life_time": 147,
+          "progress": 1.0,
+          "has_hit": false,
+          "rotation": -94.13348579335505,
+          "wind_amplitude": 0.33865136474974944,
+          "wind_frequency": 0.04122183640455315,
+          "drift_speed_x": 1.0448188704632673,
+          "drift_speed_y": 0.6398186809674399,
+          "rotation_speed": -1.3607063995922335,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.1706931007255888,
+          "start_y": 2.0704944728778596,
+          "current_x": 8.524572025423142,
+          "current_y": 0.05845604619604786,
+          "target_x": 7.856000000000126,
+          "target_y": 0,
+          "life_time": 136,
+          "progress": 1.0,
+          "has_hit": false,
+          "rotation": 331.01507680690474,
+          "wind_amplitude": 0.4331259793602784,
+          "wind_frequency": 0.021619684687715628,
+          "drift_speed_x": 1.0617998756076072,
+          "drift_speed_y": 0.9183267723438427,
+          "rotation_speed": 0.9611353448628881,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.15750565118551885,
+          "start_y": 1.8115163363001319,
+          "current_x": 6.5890750160985965,
+          "current_y": 1.7919241345911172,
+          "target_x": 8.132000000000096,
+          "target_y": 2,
+          "life_time": 136,
+          "progress": 1.0,
+          "has_hit": false,
+          "rotation": -170.88592046885762,
+          "wind_amplitude": 0.3711599278878413,
+          "wind_frequency": 0.03523125013224414,
+          "drift_speed_x": 0.8481404463260054,
+          "drift_speed_y": 0.9074625681916395,
+          "rotation_speed": -1.5313228107487364,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": 0.19311469604101245,
+          "start_y": 0.9740817889647222,
+          "current_x": 5.8015220803212975,
+          "current_y": 2.443922202718566,
+          "target_x": 6.59697531197555,
+          "target_y": 4,
+          "life_time": 28,
+          "progress": 0.7000000000000003,
+          "has_hit": false,
+          "rotation": 297.68297776892246,
+          "wind_amplitude": 0.39374690189073774,
+          "wind_frequency": 0.026748599832462968,
+          "drift_speed_x": 1.1838427914358098,
+          "drift_speed_y": 0.636896780359966,
+          "rotation_speed": 0.120401260244269,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.11778671663983241,
+          "start_y": 0.8461365676559859,
+          "current_x": 7.10314999518199,
+          "current_y": 1.047883327583915,
+          "target_x": 8.741000000000012,
+          "target_y": 1,
+          "life_time": 28,
+          "progress": 0.7000000000000003,
+          "has_hit": false,
+          "rotation": 308.90677671748745,
+          "wind_amplitude": 0.4768549948151426,
+          "wind_frequency": 0.041179875235265964,
+          "drift_speed_x": 1.0887644416719608,
+          "drift_speed_y": 0.8029810560898182,
+          "rotation_speed": -0.9554491769796716,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": 0.07518472524914105,
+          "start_y": 1.1779365649168734,
+          "current_x": 7.31070586393915,
+          "current_y": 1.731676113474056,
+          "target_x": 8.132000000000096,
+          "target_y": 2,
+          "life_time": 28,
+          "progress": 0.7000000000000003,
+          "has_hit": false,
+          "rotation": 86.19859129285096,
+          "wind_amplitude": 0.4606002765844292,
+          "wind_frequency": 0.048802587385552376,
+          "drift_speed_x": 1.1970350639569394,
+          "drift_speed_y": 0.8178601136232122,
+          "rotation_speed": -2.8655024852546482,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.108772228057089,
+          "start_y": 1.019969569295969,
+          "current_x": 5.323203970909296,
+          "current_y": 1.0786738351361602,
+          "target_x": 8.741000000000012,
+          "target_y": 1,
+          "life_time": 28,
+          "progress": 0.7000000000000003,
+          "has_hit": false,
+          "rotation": 236.18688479190303,
+          "wind_amplitude": 0.3689234970421018,
+          "wind_frequency": 0.04445553831396104,
+          "drift_speed_x": 0.8150314064000763,
+          "drift_speed_y": 0.7457933942547955,
+          "rotation_speed": 0.7467726186895263,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": 0.15712383084195825,
+          "start_y": 1.1084697708015168,
+          "current_x": 5.665512037948635,
+          "current_y": 2.5296416208985284,
+          "target_x": 6.59697531197555,
+          "target_y": 4,
+          "life_time": 28,
+          "progress": 0.7000000000000003,
+          "has_hit": false,
+          "rotation": -11.818205358440187,
+          "wind_amplitude": 0.3699934427415331,
+          "wind_frequency": 0.04103879997250852,
+          "drift_speed_x": 1.1396249820115505,
+          "drift_speed_y": 0.6632633499260968,
+          "rotation_speed": -1.562068036597547,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": 0.05155647395502799,
+          "start_y": 1.9205128279240276,
+          "current_x": 4.821529632401137,
+          "current_y": 2.1139772662241314,
+          "target_x": 8.132000000000096,
+          "target_y": 2,
+          "life_time": 22,
+          "progress": 0.5500000000000002,
+          "has_hit": false,
+          "rotation": 187.31169360902342,
+          "wind_amplitude": 0.48420264127732493,
+          "wind_frequency": 0.04965658865681821,
+          "drift_speed_x": 0.9583790296229615,
+          "drift_speed_y": 0.7734717316592793,
+          "rotation_speed": -0.0886128651517395,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.12200191232599766,
+          "start_y": 1.958670566491289,
+          "current_x": 4.4489874523872235,
+          "current_y": 1.7307485396085887,
+          "target_x": 8.741000000000012,
+          "target_y": 1,
+          "life_time": 22,
+          "progress": 0.5500000000000002,
+          "has_hit": false,
+          "rotation": 113.50702956218667,
+          "wind_amplitude": 0.31894809391220297,
+          "wind_frequency": 0.03259067485243124,
+          "drift_speed_x": 0.8781247600778541,
+          "drift_speed_y": 0.6688851543580884,
+          "rotation_speed": 2.983134249508317,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.059125384250206386,
+          "start_y": 2.159392299379599,
+          "current_x": 3.295554747708605,
+          "current_y": 3.106813308466258,
+          "target_x": 6.59697531197555,
+          "target_y": 4,
+          "life_time": 22,
+          "progress": 0.5500000000000002,
+          "has_hit": false,
+          "rotation": 344.49996304967055,
+          "wind_amplitude": 0.3683680857570545,
+          "wind_frequency": 0.03254827891075009,
+          "drift_speed_x": 0.8282290181944741,
+          "drift_speed_y": 0.7911817586988535,
+          "rotation_speed": 2.6566864881416343,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.09818815687807025,
+          "start_y": 1.9771063054456075,
+          "current_x": 3.3310208859462183,
+          "current_y": 3.230072125488125,
+          "target_x": 6.59697531197555,
+          "target_y": 4,
+          "life_time": 22,
+          "progress": 0.5500000000000002,
+          "has_hit": false,
+          "rotation": 303.60085249341597,
+          "wind_amplitude": 0.48548576589896586,
+          "wind_frequency": 0.04236295058638261,
+          "drift_speed_x": 0.8034589613223005,
+          "drift_speed_y": 0.9663203709761095,
+          "rotation_speed": 2.0576349279333135,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        },
+        {
+          "start_x": -0.058351574986195726,
+          "start_y": 2.1583744722047027,
+          "current_x": 4.324743404126619,
+          "current_y": 2.977885276970959,
+          "target_x": 6.59697531197555,
+          "target_y": 4,
+          "life_time": 22,
+          "progress": 0.5500000000000002,
+          "has_hit": false,
+          "rotation": 177.86233393039754,
+          "wind_amplitude": 0.42900248813559416,
+          "wind_frequency": 0.043428847880478384,
+          "drift_speed_x": 1.0796374387549783,
+          "drift_speed_y": 0.6577855605057413,
+          "rotation_speed": 1.7586340023792175,
+          "damage": 25,
+          "speed": 0.025,
+          "max_life_time": 180,
+          "is_fading": false,
+          "fade_out_timer": 0,
+          "fade_out_duration": 60
+        }
+      ],
+      "conveyor_belt_data": {
+        "belt_speed": 0.5,
+        "spawn_interval": 240,
+        "max_cards": 11,
+        "random_spawn": true,
+        "spawn_timer": 157,
+        "cards_on_belt": [
+          {
+            "card_type": "cucumber",
+            "x": 661.5,
+            "y": 20,
+            "selected": false,
+            "card_info": {
+              "type": "cucumber",
+              "cost": 200,
+              "color": [
+                255,
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "selected_card_index": null,
+        "_next_card_index": 0,
+        "available_plants": [
+          {
+            "type": "shooter",
+            "name": "豌豆射手",
+            "cost": 75,
+            "color": [
+              0,
+              255,
+              0
+            ]
+          },
+          {
+            "type": "melon_pult",
+            "name": "西瓜投手",
+            "cost": 275,
+            "color": [
+              255,
+              100,
+              100
+            ]
+          },
+          {
+            "type": "cattail",
+            "name": "猫尾草",
+            "cost": 225,
+            "color": [
+              128,
+              0,
+              128
+            ]
+          },
+          {
+            "type": "cherry_bomb",
+            "name": "樱桃炸弹",
+            "cost": 150,
+            "color": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "cucumber",
+            "name": "黄瓜",
+            "cost": 200,
+            "color": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "dandelion",
+            "name": "蒲公英",
+            "cost": 175,
+            "color": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "lightning_flower",
+            "name": "闪电花",
+            "cost": 300,
+            "color": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "ice_cactus",
+            "name": "寒冰仙人掌",
+            "cost": 200,
+            "color": [
+              255,
+              0,
+              0
+            ]
+          },
+          {
+            "type": "moon_flower",
+            "name": "月亮花",
+            "cost": 125,
+            "color": [
+              100,
+              100,
+              200
+            ]
+          },
+          {
+            "type": "luker",
+            "name": "地刺",
+            "cost": 75,
+            "color": [
+              64,
+              64,
+              64
+            ]
+          }
+        ]
+      },
+      "cucumber_effects": {
+        "zombie_stun_timers": {},
+        "cucumber_spray_timers": {},
+        "cucumber_plant_healing": {}
+      },
+      "freeze_effects": {
+        "frozen_zombies": []
+      },
+      "charm_effects": {
+        "charm_effects_list": []
+      },
+      "plants": [
+        {
+          "row": 2,
+          "col": 0,
+          "plant_type": "dandelion",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 21.0,
+          "current_shoot_delay": 112,
+          "had_target_last_frame": true
+        },
+        {
+          "row": 1,
+          "col": 0,
+          "plant_type": "dandelion",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 27.0,
+          "current_shoot_delay": 122,
+          "had_target_last_frame": true
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "plant_type": "cattail",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 38.0,
+          "current_shoot_delay": 46,
+          "had_target_last_frame": true
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "plant_type": "cattail",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 30.0,
+          "current_shoot_delay": 45,
+          "had_target_last_frame": true
+        },
+        {
+          "row": 0,
+          "col": 2,
+          "plant_type": "lightning_flower",
+          "health": 100,
+          "max_health": 100,
+          "shoot_timer": 122.0,
+          "current_shoot_delay": 129,
+          "had_target_last_frame": true,
+          "lightning_timer": 0,
+          "show_lightning": false,
+          "lightning_effects": []
+        }
+      ],
+      "zombies": [
+        {
+          "row": 4,
+          "col": 6.59697531197555,
+          "health": 496,
+          "max_health": 1000,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "ice_car",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004164687500908778,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 7,
+          "ice_trail_interval": 15,
+          "last_trail_col": 7,
+          "crushed_plants": [],
+          "is_ice_immune": true,
+          "crush_plants": true,
+          "explodes_on_spike": true,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 2,
+          "col": 8.132000000000096,
+          "health": 8,
+          "max_health": 150,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "normal",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.004,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 30,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        },
+        {
+          "row": 1,
+          "col": 8.741000000000012,
+          "health": 500,
+          "max_health": 500,
+          "has_armor": false,
+          "max_armor_health": 0,
+          "armor_health": 0,
+          "is_fast": false,
+          "is_attacking": false,
+          "zombie_type": "exploding",
+          "smash_timer": 0,
+          "has_attacked_once": false,
+          "is_dying": false,
+          "death_animation_timer": 0,
+          "current_alpha": 255,
+          "is_frozen": false,
+          "freeze_start_time": 0,
+          "original_speed": 0.007,
+          "is_stunned": false,
+          "is_spraying": false,
+          "stun_visual_timer": 0,
+          "explosion_damage": 1500,
+          "explosion_range": 3,
+          "has_exploded": false,
+          "explosion_triggered": false,
+          "explosion_timer": 0,
+          "explosion_delay": 15,
+          "death_by_explosion": false,
+          "ice_trail_timer": 0,
+          "ice_trail_interval": 15,
+          "last_trail_col": null,
+          "crushed_plants": [],
+          "is_ice_immune": false,
+          "crush_plants": false,
+          "explodes_on_spike": false,
+          "is_charmed": false,
+          "team": "zombie",
+          "pending_charm": 0
+        }
+      ],
+      "ice_trail_manager_data": {
+        "ice_trails": [
+          {
+            "row": 4,
+            "col": 9,
+            "remaining_time": 637,
+            "duration": 1200,
+            "alpha": 132,
+            "sparkle_timer": 563
+          },
+          {
+            "row": 4,
+            "col": 8,
+            "remaining_time": 757,
+            "duration": 1200,
+            "alpha": 157,
+            "sparkle_timer": 443
+          },
+          {
+            "row": 4,
+            "col": 7,
+            "remaining_time": 997,
+            "duration": 1200,
+            "alpha": 200,
+            "sparkle_timer": 203
+          }
+        ]
+      },
+      "bullets": [
+        {
+          "row": 3.443101178191166,
+          "col": 5.323753278664233,
+          "bullet_type": "spike",
+          "can_penetrate": false,
+          "target_col": null,
+          "speed": 0.09,
+          "start_col": 5.323753278664233,
+          "flight_progress": 0.0,
+          "has_landed": false,
+          "splash_applied": false,
+          "has_hit_target": false,
+          "actual_x": 5.323753278664233,
+          "actual_y": 3.443101178191166,
+          "direction_x": 0.9161932199266762,
+          "direction_y": 0.40073680110564974,
+          "target_direction_x": 0.9161932199266762,
+          "target_direction_y": 0.40073680110564974,
+          "retargeting_cooldown": 0,
+          "explosion_triggered": false,
+          "show_explosion": false,
+          "hit_zombies_count": 0,
+          "splash_hit_zombies_count": 0,
+          "freeze_power": 0,
+          "freeze_applied_zombies": 0,
+          "moon_rotation": 0,
+          "moon_glow_timer": 0,
+          "moon_initial_col": 5.323753278664233,
+          "moon_wave_amplitude": 0.1,
+          "moon_wave_frequency": 0.1,
+          "psychedelic_dmg": 0,
+          "psychedelic_charm_duration": 0,
+          "psychedelic_max_height": 0,
+          "psychedelic_flight_speed": 0
+        },
+        {
+          "row": 2.7517513912485105,
+          "col": 4.7163032222961805,
+          "bullet_type": "spike",
+          "can_penetrate": false,
+          "target_col": null,
+          "speed": 0.09,
+          "start_col": 4.7163032222961805,
+          "flight_progress": 0.0,
+          "has_landed": false,
+          "splash_applied": false,
+          "has_hit_target": false,
+          "actual_x": 4.7163032222961805,
+          "actual_y": 2.7517513912485105,
+          "direction_x": 0.8331798626960787,
+          "direction_y": 0.5530020943882071,
+          "target_direction_x": 0.8331798626960787,
+          "target_direction_y": 0.5530020943882071,
+          "retargeting_cooldown": 0,
+          "explosion_triggered": false,
+          "show_explosion": false,
+          "hit_zombies_count": 0,
+          "splash_hit_zombies_count": 0,
+          "freeze_power": 0,
+          "freeze_applied_zombies": 0,
+          "moon_rotation": 0,
+          "moon_glow_timer": 0,
+          "moon_initial_col": 4.7163032222961805,
+          "moon_wave_amplitude": 0.1,
+          "moon_wave_frequency": 0.1,
+          "psychedelic_dmg": 0,
+          "psychedelic_charm_duration": 0,
+          "psychedelic_max_height": 0,
+          "psychedelic_flight_speed": 0
+        },
+        {
+          "row": 2.6312714242014406,
+          "col": 3.3331172864922705,
+          "bullet_type": "spike",
+          "can_penetrate": false,
+          "target_col": null,
+          "speed": 0.09,
+          "start_col": 3.3331172864922705,
+          "flight_progress": 0.0,
+          "has_landed": false,
+          "splash_applied": false,
+          "has_hit_target": false,
+          "actual_x": 3.3331172864922705,
+          "actual_y": 2.6312714242014406,
+          "direction_x": 0.9221929791545814,
+          "direction_y": 0.38673002107154525,
+          "target_direction_x": 0.9221929791545814,
+          "target_direction_y": 0.38673002107154525,
+          "retargeting_cooldown": 0,
+          "explosion_triggered": false,
+          "show_explosion": false,
+          "hit_zombies_count": 0,
+          "splash_hit_zombies_count": 0,
+          "freeze_power": 0,
+          "freeze_applied_zombies": 0,
+          "moon_rotation": 0,
+          "moon_glow_timer": 0,
+          "moon_initial_col": 3.3331172864922705,
+          "moon_wave_amplitude": 0.1,
+          "moon_wave_frequency": 0.1,
+          "psychedelic_dmg": 0,
+          "psychedelic_charm_duration": 0,
+          "psychedelic_max_height": 0,
+          "psychedelic_flight_speed": 0
+        },
+        {
+          "row": 1.6020837762952083,
+          "col": 2.8996480994525196,
+          "bullet_type": "spike",
+          "can_penetrate": false,
+          "target_col": null,
+          "speed": 0.09,
+          "start_col": 2.8996480994525196,
+          "flight_progress": 0.0,
+          "has_landed": false,
+          "splash_applied": false,
+          "has_hit_target": false,
+          "actual_x": 2.8996480994525196,
+          "actual_y": 1.6020837762952083,
+          "direction_x": 0.8389975536056257,
+          "direction_y": 0.5441351900435913,
+          "target_direction_x": 0.8389975536056257,
+          "target_direction_y": 0.5441351900435912,
+          "retargeting_cooldown": 0,
+          "explosion_triggered": false,
+          "show_explosion": false,
+          "hit_zombies_count": 0,
+          "splash_hit_zombies_count": 0,
+          "freeze_power": 0,
+          "freeze_applied_zombies": 0,
+          "moon_rotation": 0,
+          "moon_glow_timer": 0,
+          "moon_initial_col": 2.8996480994525196,
+          "moon_wave_amplitude": 0.1,
+          "moon_wave_frequency": 0.1,
+          "psychedelic_dmg": 0,
+          "psychedelic_charm_duration": 0,
+          "psychedelic_max_height": 0,
+          "psychedelic_flight_speed": 0
+        }
+      ],
+      "explosion_effects": [],
+      "music_state": {
+        "current_music_file": "Laura Shigihara - Loonboon.ogg",
+        "is_playing": true,
+        "play_time": 35.115,
+        "volume": 0.5
+      },
+      "save_time": 1759977339.5600872
+    }
+  },
+  "coins": 9799
+}

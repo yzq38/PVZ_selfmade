@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "version": "2.0",
+    "last_modified": "2025-09-23T09:56:58.978344",
+    "description": "植物大战僵尸简易版关卡配置 - 简化版"
+  },
+  "default_config": {
+    "max_waves": 5,
+    "initial_sun": 100,
+    "zombie_armor_prob": 0.3,
+    "fast_zombie_multiplier": 2.5
+  },
+  "levels": {
+    "1": {
+      "name": "1.小试牛刀",
+      "max_waves": 3,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.1,
+      "fast_zombie_multiplier": 2.5
+    },
+    "2": {
+      "name": "2.子弹穿透",
+      "max_waves": 3,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 2.5
+    },
+    "3": {
+      "name": "3.铁门增多",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "4": {
+      "name": "4.囊中羞涩",
+      "max_waves": 5,
+      "initial_sun": 400,
+      "zombie_armor_prob": 0.25,
+      "fast_zombie_multiplier": 2.5
+    },
+    "5": {
+      "name": "5.重装火力",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "6": {
+      "name": "6.全员防御",
+      "max_waves": 3,
+      "initial_sun": 200,
+      "zombie_armor_prob": 1.0,
+      "fast_zombie_multiplier": 2.5
+    },
+    "7": {
+      "name": "7.僵尸快跑",
+      "max_waves": 3,
+      "initial_sun": 250,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "8": {
+      "name": "8.冷却++",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.6,
+      "fast_zombie_multiplier": 2.5
+    },
+    "9": {
+      "name": "9.可选卡牌！",
+      "max_waves": 2,
+      "initial_sun": 250,
+      "zombie_armor_prob": 0.72,
+      "fast_zombie_multiplier": 2.5
+    },
+    "10": {
+      "name": "10.追踪刺客",
+      "max_waves": 4,
+      "initial_sun": 250,
+      "zombie_armor_prob": 0.6,
+      "fast_zombie_multiplier": 2.5
+    },
+    "11": {
+      "name": "11.坚果墙",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.65,
+      "fast_zombie_multiplier": 2.7
+    },
+    "12": {
+      "name": "12.炸炸炸",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.75,
+      "fast_zombie_multiplier": 2.7
+    },
+    "13": {
+      "name": "13.巨人支援",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 2.5
+    },
+    "14": {
+      "name": "14.黄瓜！",
+      "max_waves": 4,
+      "initial_sun": 300,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 3.4
+    },
+    "15": {
+      "name": "15.随风飘呀飘",
+      "max_waves": 3,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "16": {
+      "name": "16.闪电来袭",
+      "max_waves": 3,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 2.8
+    },
+    "17": {
+      "name": "17.寒冰穿透",
+      "max_waves": 3,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 2.5
+    },
+    "18": {
+      "name": "18.传送门",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.2
+    },
+    "19": {
+      "name": "19.僵尸也爆炸",
+      "max_waves": 4,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 4.0
+    },
+    "20": {
+      "name": "20.渐入佳境",
+      "max_waves": 5,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "21": {
+      "name": "21.传送带",
+      "max_waves": 5,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.6
+    },
+    "22": {
+      "name": "22.暗夜危机1",
+      "max_waves": 4,
+      "initial_sun": 100,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "23": {
+      "name": "23.暗夜危机2",
+      "max_waves": 4,
+      "initial_sun": 100,
+      "zombie_armor_prob": 0.4,
+      "fast_zombie_multiplier": 2.6
+    },
+    "24": {
+      "name": "24.暗夜危机3",
+      "max_waves": 4,
+      "initial_sun": 100,
+      "zombie_armor_prob": 0.5,
+      "fast_zombie_multiplier": 2.7
+    },
+    "25": {
+      "name": "25.暂时和解",
+      "max_waves": 5,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 1.2
+    },
+    "26": {
+      "name": "26.二战",
+      "max_waves": 5,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "27": {
+      "name": "27.危险前兆",
+      "max_waves": 5,
+      "initial_sun": 200,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    },
+    "28": {
+      "name": "28.决战",
+      "max_waves": 5,
+      "initial_sun": 150,
+      "zombie_armor_prob": 0.3,
+      "fast_zombie_multiplier": 2.5
+    }
+  }
+}
